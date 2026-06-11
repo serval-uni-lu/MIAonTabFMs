@@ -1,6 +1,6 @@
 # MIA on Tabular Foundation Models
 
-Membership Inference Attacks (MIA) on tabular models using five attack methods: **RMIA**, **LiRA**, **Attack-P**, **LOSS**, and **QMIA**.
+Membership Inference Attacks (MIA) on tabular models using five attack methods: **RMIA**, **LiRA**, **Attack-P**, **LOSS**, and **QMIA**. A new attack **AMIA** and **High-risk (target) label k-anonymity** defence are proposed.
 
 ---
 
@@ -302,7 +302,7 @@ uv run run_attacks/run_batch.py --attack rmia \
 
 ---
 
-## Attention-based MIA (TabPFN / Real-TabPFN)
+## Attention-based MIA
 
 Exploits the ICL transformer's attention weights to distinguish members from non-members. A sample present in the training context can attend to itself in the key set, producing a sharp attention spike. Non-members have no matching key, so their attention is more diffuse.
 
