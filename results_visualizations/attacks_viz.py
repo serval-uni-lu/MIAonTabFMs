@@ -4732,6 +4732,14 @@ class ResultsAnalyzer:
                         except Exception as exc:
                             logger.warning("Could not read RMIA context result %s: %s", result_path, exc)
                             continue
+                        accuracy = np.nan
+                        log_path = run_dir / "report" / "log_time_analysis.log"
+                        if log_path.exists():
+                            try:
+                                metrics = self.parse_log_file(str(log_path))
+                                accuracy = metrics.get("target_test_acc", np.nan)
+                            except Exception as exc:
+                                logger.warning("Could not read RMIA context accuracy %s: %s", log_path, exc)
                         rows.append({
                             "dataset": dataset,
                             "model": model,
@@ -4739,6 +4747,7 @@ class ResultsAnalyzer:
                             "context_pct": context_pct,
                             "attack": "RMIA",
                             "auc": auc_val,
+                            "accuracy": accuracy,
                             "source": str(result_path),
                         })
                     else:
@@ -4762,6 +4771,7 @@ class ResultsAnalyzer:
                             "context_pct": context_pct,
                             "attack": "AMIA row_max",
                             "auc": auc_val,
+                            "accuracy": np.nan,
                             "source": str(summary_path),
                         })
         return pd.DataFrame(rows)
@@ -4782,6 +4792,7 @@ class ResultsAnalyzer:
             "RMIA": {"color": self.RMIA_COLOR, "marker": "o", "linestyle": "-"},
             "AMIA row_max": {"color": self.AMIA_COLOR, "marker": "s", "linestyle": "--"},
         }
+        accuracy_style = {"color": "#D4AF37", "marker": "^", "linestyle": "-."}
 
         combined_points = []
         combined_summaries = []
@@ -4804,6 +4815,8 @@ class ResultsAnalyzer:
                 .agg(
                     auc_mean=("auc", "mean"),
                     auc_std=("auc", lambda s: float(np.nanstd(pd.to_numeric(s, errors="coerce"), ddof=1)) if pd.to_numeric(s, errors="coerce").notna().sum() > 1 else 0.0),
+                    accuracy_mean=("accuracy", "mean"),
+                    accuracy_std=("accuracy", lambda s: float(np.nanstd(pd.to_numeric(s, errors="coerce"), ddof=1)) if pd.to_numeric(s, errors="coerce").notna().sum() > 1 else 0.0),
                     num_seeds=("seed", "nunique"),
                 )
             )
@@ -4850,6 +4863,31 @@ class ResultsAnalyzer:
                         )
                         if np.nanmax(std) > 0:
                             ax.fill_between(x, np.maximum(0, y - std), np.minimum(1, y + std), color=style["color"], alpha=0.14, linewidth=0)
+                    acc_df = model_df[model_df["attack"] == "RMIA"].sort_values("context_pct")
+                    acc_df = acc_df.dropna(subset=["accuracy_mean"])
+                    if not acc_df.empty:
+                        x_acc = acc_df["context_pct"].to_numpy(dtype=float)
+                        y_acc = acc_df["accuracy_mean"].to_numpy(dtype=float)
+                        acc_std = acc_df["accuracy_std"].fillna(0.0).to_numpy(dtype=float)
+                        ax.plot(
+                            x_acc,
+                            y_acc,
+                            marker=accuracy_style["marker"],
+                            linestyle=accuracy_style["linestyle"],
+                            linewidth=2.2,
+                            markersize=5.6,
+                            color=accuracy_style["color"],
+                            label="Accuracy",
+                        )
+                        if len(acc_std) and np.nanmax(acc_std) > 0:
+                            ax.fill_between(
+                                x_acc,
+                                np.maximum(0, y_acc - acc_std),
+                                np.minimum(1, y_acc + acc_std),
+                                color=accuracy_style["color"],
+                                alpha=0.12,
+                                linewidth=0,
+                            )
                     ax.axhline(0.5, color="#777777", linestyle=":", linewidth=1.1)
                     ax.set_title(model_labels.get(model, model), fontweight="bold")
                     ax.set_xlim(0, 105)
@@ -4858,7 +4896,7 @@ class ResultsAnalyzer:
                     if idx // ncols == nrows - 1:
                         ax.set_xlabel("Context size (% of training pool)")
                     if idx % ncols == 0:
-                        ax.set_ylabel("MIA AUC")
+                        ax.set_ylabel("MIA AUC / accuracy")
                     ax.set_xticks([5, 10, 20, 40, 60, 80, 100])
                     ax.set_xticklabels(["5", "10", "20", "40", "60", "80", "100"])
 
@@ -4868,7 +4906,8 @@ class ResultsAnalyzer:
                     Line2D([0], [0], color=style["color"], marker=style["marker"], linestyle=style["linestyle"], linewidth=2.3, markersize=5.8, label=attack.replace(" row_max", ""))
                     for attack, style in attack_styles.items()
                 ]
-                fig.legend(handles=handles, loc="lower center", ncol=2, frameon=True, bbox_to_anchor=(0.5, -0.02))
+                handles.append(Line2D([0], [0], color=accuracy_style["color"], marker=accuracy_style["marker"], linestyle=accuracy_style["linestyle"], linewidth=2.2, markersize=5.6, label="Accuracy"))
+                fig.legend(handles=handles, loc="lower center", ncol=3, frameon=True, bbox_to_anchor=(0.5, -0.02))
                 fig.tight_layout(rect=(0, 0.04, 1, 1.0))
                 out = os.path.join(save_dir, f"{prefix}.png")
                 fig.savefig(out, dpi=300, bbox_inches="tight")
@@ -4934,11 +4973,36 @@ class ResultsAnalyzer:
                                 alpha=0.12,
                                 linewidth=0,
                             )
+                    acc_df = model_df[model_df["attack"] == "RMIA"].sort_values("context_pct")
+                    acc_df = acc_df.dropna(subset=["accuracy_mean"])
+                    if not acc_df.empty:
+                        x_acc = acc_df["context_pct"].to_numpy(dtype=float)
+                        y_acc = acc_df["accuracy_mean"].to_numpy(dtype=float)
+                        acc_std = acc_df["accuracy_std"].fillna(0.0).to_numpy(dtype=float)
+                        ax.plot(
+                            x_acc,
+                            y_acc,
+                            marker=accuracy_style["marker"],
+                            linestyle=accuracy_style["linestyle"],
+                            linewidth=2.0,
+                            markersize=5.0,
+                            color=accuracy_style["color"],
+                            label="Accuracy",
+                        )
+                        if len(acc_std) and np.nanmax(acc_std) > 0:
+                            ax.fill_between(
+                                x_acc,
+                                np.maximum(0, y_acc - acc_std),
+                                np.minimum(1, y_acc + acc_std),
+                                color=accuracy_style["color"],
+                                alpha=0.12,
+                                linewidth=0,
+                            )
                     ax.axhline(0.5, color="#777777", linestyle=":", linewidth=1.0)
                     if row_idx == 0:
                         ax.set_title(model_labels.get(model, model), fontweight="bold")
                     if col_idx == 0:
-                        ax.set_ylabel("MIA AUC")
+                        ax.set_ylabel("MIA AUC / accuracy")
                         ax.text(
                             -0.30,
                             0.5,
@@ -4962,7 +5026,8 @@ class ResultsAnalyzer:
                 Line2D([0], [0], color=style["color"], marker=style["marker"], linestyle=style["linestyle"], linewidth=2.1, markersize=5.2, label=attack.replace(" row_max", ""))
                 for attack, style in attack_styles.items()
             ]
-            fig.legend(handles=handles, loc="lower center", ncol=2, frameon=True, bbox_to_anchor=(0.5, -0.02))
+            handles.append(Line2D([0], [0], color=accuracy_style["color"], marker=accuracy_style["marker"], linestyle=accuracy_style["linestyle"], linewidth=2.0, markersize=5.0, label="Accuracy"))
+            fig.legend(handles=handles, loc="lower center", ncol=3, frameon=True, bbox_to_anchor=(0.5, -0.02))
             fig.tight_layout(rect=(0.02, 0.05, 1, 1))
             combined_out = os.path.join(save_dir, "29_context_rmia_amia_evolution_combined.png")
             fig.savefig(combined_out, dpi=300, bbox_inches="tight")
