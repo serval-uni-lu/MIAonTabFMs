@@ -1,0 +1,8 @@
+dataset,model,member_count,nonmember_count,member_score_mean,nonmember_score_mean,score_mean_gap_member_minus_nonmember,member_score_std,nonmember_score_std,ks_score,tpr_at_threshold_0.5,tnr_at_threshold_0.5,tpr_at_fpr_10pct
+credit_rating,tabpfn,0,0,,,,,,,,,
+credit_rating,real-tabpfn,0,0,,,,,,,,,
+credit_rating,tabicl,0,0,,,,,,,,,
+credit_rating,tabdpt,0,0,,,,,,,,,
+credit_rating,mlp,0,0,,,,,,,,,
+credit_rating,lightgbm,0,0,,,,,,,,,
+credit_rating,rf,0,0,,,,,,,,,

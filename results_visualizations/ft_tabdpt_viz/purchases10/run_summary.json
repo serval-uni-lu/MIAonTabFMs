@@ -1,0 +1,47 @@
+{
+  "model_change": {
+    "train_accuracy_delta": 0.1336032388663967,
+    "test_accuracy_delta": 0.04735883424408016,
+    "member_score_mean_delta": 0.21189236640930176,
+    "nonmember_score_mean_delta": 0.13939452171325684,
+    "weight_delta": {
+      "compared_tensors": 248,
+      "changed_tensors": 248,
+      "l2_diff": 11.528543990835212,
+      "l2_original": 319.9240058272644,
+      "relative_l2_diff": 0.03603525768885173,
+      "max_abs_diff": 0.08446099609136581
+    }
+  },
+  "attention_change": {
+    "membership": {
+      "original_row_max_mean": 0.05606020614504814,
+      "finetuned_row_max_mean": 0.04557991772890091,
+      "row_max_delta_mean": -0.010480283759534359,
+      "row_max_abs_delta_mean": 0.012712105177342892,
+      "original_row_ent_mean": -5.976484298706055,
+      "finetuned_row_ent_mean": -5.9109697341918945,
+      "row_ent_delta_mean": 0.0655144676566124,
+      "row_ent_abs_delta_mean": 0.07739351689815521,
+      "finetuned_row_max_membership_auc": 0.5006769556884598,
+      "row_max_delta_membership_auc": 0.5005686739149494,
+      "finetuned_row_ent_membership_auc": 0.5004944990564778,
+      "row_ent_delta_membership_auc": 0.5006156656645584,
+      "member_row_max_abs_delta_mean": 0.012709315866231918,
+      "nonmember_row_max_abs_delta_mean": 0.01271489355713129,
+      "member_row_ent_abs_delta_mean": 0.07750362902879715,
+      "nonmember_row_ent_abs_delta_mean": 0.07728341966867447
+    },
+    "test": {
+      "original_row_max_mean": 0.05605028569698334,
+      "finetuned_row_max_mean": 0.045567482709884644,
+      "row_max_delta_mean": -0.010482802987098694,
+      "row_max_abs_delta_mean": 0.012710419483482838,
+      "original_row_ent_mean": -5.976644515991211,
+      "finetuned_row_ent_mean": -5.911154747009277,
+      "row_ent_delta_mean": 0.06548940390348434,
+      "row_ent_abs_delta_mean": 0.07730801403522491
+    }
+  },
+  "performance_summary_csv": "/home/tania/Desktop/MIAonTabularFM/results_visualizations/ft_tabdpt_viz/purchases10/performance_summary.csv"
+}

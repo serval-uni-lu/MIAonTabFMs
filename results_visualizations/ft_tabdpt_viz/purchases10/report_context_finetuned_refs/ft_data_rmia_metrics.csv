@@ -1,0 +1,11 @@
+model,metric,value
+original,auc,0.4942188676586146
+original,tpr@0.1%fpr,0.0012145748987854252
+original,tpr@0%fpr,0.0
+original,tnr@0.1%fnr,0.0004047763610605104
+original,tnr@0%fnr,0.0
+finetuned,auc,0.5179331496271387
+finetuned,tpr@0.1%fpr,0.0
+finetuned,tpr@0%fpr,0.0
+finetuned,tnr@0.1%fnr,0.05424003238210884
+finetuned,tnr@0%fnr,0.032786885245901676

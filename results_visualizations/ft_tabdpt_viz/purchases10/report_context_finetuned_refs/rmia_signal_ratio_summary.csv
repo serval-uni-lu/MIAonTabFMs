@@ -1,0 +1,3 @@
+membership_group,original_target_minus_reference_mean,original_target_minus_reference_median,finetuned_target_minus_reference_mean,finetuned_target_minus_reference_median,original_target_reference_ratio_mean,original_target_reference_ratio_median,finetuned_target_reference_ratio_mean,finetuned_target_reference_ratio_median
+Member,-0.062380402912253795,-0.001998335123062245,-0.0023505500532160716,0.0,0.9159046377330985,0.9979339060601619,0.9974533902151845,1.0
+Non-member,-0.06166037394599399,-0.0019797682762143776,-0.028476288599995302,0.0,0.917531013551715,0.9979479246004599,0.9418345394259747,1.0

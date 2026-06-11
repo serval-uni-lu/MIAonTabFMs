@@ -1,0 +1,432 @@
+dataset,model,seed,context_pct,attack,auc,source
+locations,real-tabpfn,1,5.0,AMIA row_max,0.974609375,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx5/report/exp/attention_summary.csv
+locations,real-tabpfn,2,5.0,AMIA row_max,0.9677734375,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx5/report/exp/attention_summary.csv
+locations,real-tabpfn,3,5.0,AMIA row_max,0.9990234375,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx5/report/exp/attention_summary.csv
+locations,real-tabpfn,4,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx5/report/exp/attention_summary.csv
+locations,real-tabpfn,5,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx5/report/exp/attention_summary.csv
+locations,real-tabpfn,1,10.0,AMIA row_max,0.960693359375,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx10/report/exp/attention_summary.csv
+locations,real-tabpfn,2,10.0,AMIA row_max,0.951416015625,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx10/report/exp/attention_summary.csv
+locations,real-tabpfn,3,10.0,AMIA row_max,0.966064453125,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx10/report/exp/attention_summary.csv
+locations,real-tabpfn,4,10.0,AMIA row_max,0.970703125,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx10/report/exp/attention_summary.csv
+locations,real-tabpfn,5,10.0,AMIA row_max,0.969970703125,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx10/report/exp/attention_summary.csv
+locations,real-tabpfn,1,20.0,AMIA row_max,0.95635986328125,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx20/report/exp/attention_summary.csv
+locations,real-tabpfn,2,20.0,AMIA row_max,0.95770263671875,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx20/report/exp/attention_summary.csv
+locations,real-tabpfn,3,20.0,AMIA row_max,0.95965576171875,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx20/report/exp/attention_summary.csv
+locations,real-tabpfn,4,20.0,AMIA row_max,0.95599365234375,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx20/report/exp/attention_summary.csv
+locations,real-tabpfn,5,20.0,AMIA row_max,0.96917724609375,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx20/report/exp/attention_summary.csv
+locations,real-tabpfn,1,30.0,AMIA row_max,0.942409939236111,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx30/report/exp/attention_summary.csv
+locations,real-tabpfn,2,30.0,AMIA row_max,0.9600694444444444,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx30/report/exp/attention_summary.csv
+locations,real-tabpfn,3,30.0,AMIA row_max,0.9570041232638888,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx30/report/exp/attention_summary.csv
+locations,real-tabpfn,4,30.0,AMIA row_max,0.9520670572916667,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx30/report/exp/attention_summary.csv
+locations,real-tabpfn,5,30.0,AMIA row_max,0.9510362413194445,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx30/report/exp/attention_summary.csv
+locations,real-tabpfn,1,40.0,AMIA row_max,0.9446133268482491,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx40/report/exp/attention_summary.csv
+locations,real-tabpfn,2,40.0,AMIA row_max,0.9459812743190661,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx40/report/exp/attention_summary.csv
+locations,real-tabpfn,3,40.0,AMIA row_max,0.9300826848249029,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx40/report/exp/attention_summary.csv
+locations,real-tabpfn,4,40.0,AMIA row_max,0.9597671449416343,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx40/report/exp/attention_summary.csv
+locations,real-tabpfn,5,40.0,AMIA row_max,0.9422118190661479,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx40/report/exp/attention_summary.csv
+locations,real-tabpfn,1,50.0,AMIA row_max,0.9490751557632398,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx50/report/exp/attention_summary.csv
+locations,real-tabpfn,2,50.0,AMIA row_max,0.9390478971962617,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx50/report/exp/attention_summary.csv
+locations,real-tabpfn,3,50.0,AMIA row_max,0.930704828660436,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx50/report/exp/attention_summary.csv
+locations,real-tabpfn,4,50.0,AMIA row_max,0.9461545950155763,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx50/report/exp/attention_summary.csv
+locations,real-tabpfn,5,50.0,AMIA row_max,0.9456580996884734,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx50/report/exp/attention_summary.csv
+locations,real-tabpfn,1,60.0,AMIA row_max,0.9397118506493506,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx60/report/exp/attention_summary.csv
+locations,real-tabpfn,2,60.0,AMIA row_max,0.9517924783549784,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx60/report/exp/attention_summary.csv
+locations,real-tabpfn,3,60.0,AMIA row_max,0.9550121753246753,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx60/report/exp/attention_summary.csv
+locations,real-tabpfn,4,60.0,AMIA row_max,0.9480654761904762,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx60/report/exp/attention_summary.csv
+locations,real-tabpfn,5,60.0,AMIA row_max,0.9322510822510822,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx60/report/exp/attention_summary.csv
+locations,real-tabpfn,1,70.0,AMIA row_max,0.9357294854688221,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx70/report/exp/attention_summary.csv
+locations,real-tabpfn,2,70.0,AMIA row_max,0.9356451604902754,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx70/report/exp/attention_summary.csv
+locations,real-tabpfn,3,70.0,AMIA row_max,0.9337205668622676,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx70/report/exp/attention_summary.csv
+locations,real-tabpfn,4,70.0,AMIA row_max,0.9542611395776808,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx70/report/exp/attention_summary.csv
+locations,real-tabpfn,5,70.0,AMIA row_max,0.9446728934876314,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx70/report/exp/attention_summary.csv
+locations,real-tabpfn,1,80.0,AMIA row_max,0.9294255782405982,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx80/report/exp/attention_summary.csv
+locations,real-tabpfn,2,80.0,AMIA row_max,0.9328074355262208,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx80/report/exp/attention_summary.csv
+locations,real-tabpfn,3,80.0,AMIA row_max,0.9270050803856076,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx80/report/exp/attention_summary.csv
+locations,real-tabpfn,4,80.0,AMIA row_max,0.9523500108295431,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx80/report/exp/attention_summary.csv
+locations,real-tabpfn,5,80.0,AMIA row_max,0.9256713366695926,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx80/report/exp/attention_summary.csv
+locations,real-tabpfn,1,90.0,AMIA row_max,0.9467964641109666,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia_ctx90/report/exp/attention_summary.csv
+locations,real-tabpfn,2,90.0,AMIA row_max,0.9368273716017529,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia_ctx90/report/exp/attention_summary.csv
+locations,real-tabpfn,3,90.0,AMIA row_max,0.945438817285367,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia_ctx90/report/exp/attention_summary.csv
+locations,real-tabpfn,4,90.0,AMIA row_max,0.9503888216406501,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia_ctx90/report/exp/attention_summary.csv
+locations,real-tabpfn,5,90.0,AMIA row_max,0.917733210384196,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia_ctx90/report/exp/attention_summary.csv
+locations,real-tabpfn,1,100.0,AMIA row_max,0.9472494787641973,ml_privacy_meter/logs/locations/real-tabpfn/seed1/amia/report/exp/attention_summary.csv
+locations,real-tabpfn,2,100.0,AMIA row_max,0.9312576241367411,ml_privacy_meter/logs/locations/real-tabpfn/seed2/amia/report/exp/attention_summary.csv
+locations,real-tabpfn,3,100.0,AMIA row_max,0.9494194721059871,ml_privacy_meter/logs/locations/real-tabpfn/seed3/amia/report/exp/attention_summary.csv
+locations,real-tabpfn,4,100.0,AMIA row_max,0.9382876249629425,ml_privacy_meter/logs/locations/real-tabpfn/seed4/amia/report/exp/attention_summary.csv
+locations,real-tabpfn,5,100.0,AMIA row_max,0.9168525619529454,ml_privacy_meter/logs/locations/real-tabpfn/seed5/amia/report/exp/attention_summary.csv
+locations,real-tabpfn,1,5.0,RMIA,0.93505859375,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx5/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,5.0,RMIA,0.95263671875,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx5/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,5.0,RMIA,0.91845703125,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx5/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,5.0,RMIA,0.96044921875,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx5/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,5.0,RMIA,0.8837890625,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx5/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,10.0,RMIA,0.974853515625,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx10/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,10.0,RMIA,0.9385986328125,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx10/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,10.0,RMIA,0.963623046875,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx10/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,10.0,RMIA,0.9473876953125,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx10/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,10.0,RMIA,0.966552734375,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx10/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,20.0,RMIA,0.947662353515625,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx20/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,20.0,RMIA,0.969879150390625,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx20/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,20.0,RMIA,0.957672119140625,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx20/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,20.0,RMIA,0.952117919921875,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx20/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,20.0,RMIA,0.941802978515625,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx20/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,30.0,RMIA,0.9427897135416667,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx30/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,30.0,RMIA,0.9627685546875,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx30/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,30.0,RMIA,0.916476779513889,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx30/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,30.0,RMIA,0.9395209418402778,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx30/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,30.0,RMIA,0.9516465928819444,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx30/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,40.0,RMIA,0.9086287086575875,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx40/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,40.0,RMIA,0.8734420598249026,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx40/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,40.0,RMIA,0.8777662937743189,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx40/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,40.0,RMIA,0.8677650778210116,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx40/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,40.0,RMIA,0.9042284776264591,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx40/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,50.0,RMIA,0.8490167445482866,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx50/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,50.0,RMIA,0.8933605919003116,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx50/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,50.0,RMIA,0.8906882788161994,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx50/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,50.0,RMIA,0.8488415109034269,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx50/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,50.0,RMIA,0.8918370327102804,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx50/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,60.0,RMIA,0.8837797619047619,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx60/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,60.0,RMIA,0.8584009740259739,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx60/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,60.0,RMIA,0.8702955898268399,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx60/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,60.0,RMIA,0.801471185064935,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx60/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,60.0,RMIA,0.8695718344155843,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx60/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,70.0,RMIA,0.858525007316432,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx70/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,70.0,RMIA,0.8494327905119519,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx70/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,70.0,RMIA,0.8495443971012049,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx70/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,70.0,RMIA,0.8501049101938978,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx70/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,70.0,RMIA,0.8656107856607854,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx70/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,80.0,RMIA,0.8625161018205032,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx80/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,80.0,RMIA,0.846110294145587,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx80/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,80.0,RMIA,0.860448989052662,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx80/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,80.0,RMIA,0.8191447320923056,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx80/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,80.0,RMIA,0.8124494146347023,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx80/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,90.0,RMIA,0.8377116442244443,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia_ctx90/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,90.0,RMIA,0.8042600674618312,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia_ctx90/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,90.0,RMIA,0.8640941461993398,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia_ctx90/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,90.0,RMIA,0.8160628842786299,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia_ctx90/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,90.0,RMIA,0.8374923782548231,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia_ctx90/report/exp/attack_result_0.npz
+locations,real-tabpfn,1,100.0,RMIA,0.8183001151821774,ml_privacy_meter/logs/locations/real-tabpfn/seed1/rmia/report/exp/attack_result_0.npz
+locations,real-tabpfn,2,100.0,RMIA,0.7916988642162509,ml_privacy_meter/logs/locations/real-tabpfn/seed2/rmia/report/exp/attack_result_0.npz
+locations,real-tabpfn,3,100.0,RMIA,0.8505268248113103,ml_privacy_meter/logs/locations/real-tabpfn/seed3/rmia/report/exp/attack_result_0.npz
+locations,real-tabpfn,4,100.0,RMIA,0.8151994304071228,ml_privacy_meter/logs/locations/real-tabpfn/seed4/rmia/report/exp/attack_result_0.npz
+locations,real-tabpfn,5,100.0,RMIA,0.8121449157031702,ml_privacy_meter/logs/locations/real-tabpfn/seed5/rmia/report/exp/attack_result_0.npz
+locations,tabdpt,1,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx5/report/exp/attention_summary.csv
+locations,tabdpt,2,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx5/report/exp/attention_summary.csv
+locations,tabdpt,3,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx5/report/exp/attention_summary.csv
+locations,tabdpt,4,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx5/report/exp/attention_summary.csv
+locations,tabdpt,5,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx5/report/exp/attention_summary.csv
+locations,tabdpt,1,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx10/report/exp/attention_summary.csv
+locations,tabdpt,2,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx10/report/exp/attention_summary.csv
+locations,tabdpt,3,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx10/report/exp/attention_summary.csv
+locations,tabdpt,4,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx10/report/exp/attention_summary.csv
+locations,tabdpt,5,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx10/report/exp/attention_summary.csv
+locations,tabdpt,1,20.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx20/report/exp/attention_summary.csv
+locations,tabdpt,2,20.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx20/report/exp/attention_summary.csv
+locations,tabdpt,3,20.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx20/report/exp/attention_summary.csv
+locations,tabdpt,4,20.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx20/report/exp/attention_summary.csv
+locations,tabdpt,5,20.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx20/report/exp/attention_summary.csv
+locations,tabdpt,1,30.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx30/report/exp/attention_summary.csv
+locations,tabdpt,2,30.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx30/report/exp/attention_summary.csv
+locations,tabdpt,3,30.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx30/report/exp/attention_summary.csv
+locations,tabdpt,4,30.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx30/report/exp/attention_summary.csv
+locations,tabdpt,5,30.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx30/report/exp/attention_summary.csv
+locations,tabdpt,1,40.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx40/report/exp/attention_summary.csv
+locations,tabdpt,2,40.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx40/report/exp/attention_summary.csv
+locations,tabdpt,3,40.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx40/report/exp/attention_summary.csv
+locations,tabdpt,4,40.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx40/report/exp/attention_summary.csv
+locations,tabdpt,5,40.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx40/report/exp/attention_summary.csv
+locations,tabdpt,1,50.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx50/report/exp/attention_summary.csv
+locations,tabdpt,2,50.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx50/report/exp/attention_summary.csv
+locations,tabdpt,3,50.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx50/report/exp/attention_summary.csv
+locations,tabdpt,4,50.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx50/report/exp/attention_summary.csv
+locations,tabdpt,5,50.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx50/report/exp/attention_summary.csv
+locations,tabdpt,1,60.0,AMIA row_max,0.9999391233766234,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx60/report/exp/attention_summary.csv
+locations,tabdpt,2,60.0,AMIA row_max,0.9994453463203463,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx60/report/exp/attention_summary.csv
+locations,tabdpt,3,60.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx60/report/exp/attention_summary.csv
+locations,tabdpt,4,60.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx60/report/exp/attention_summary.csv
+locations,tabdpt,5,60.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx60/report/exp/attention_summary.csv
+locations,tabdpt,1,70.0,AMIA row_max,0.9999404764857318,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx70/report/exp/attention_summary.csv
+locations,tabdpt,2,70.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx70/report/exp/attention_summary.csv
+locations,tabdpt,3,70.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx70/report/exp/attention_summary.csv
+locations,tabdpt,4,70.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx70/report/exp/attention_summary.csv
+locations,tabdpt,5,70.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx70/report/exp/attention_summary.csv
+locations,tabdpt,1,80.0,AMIA row_max,0.999460422770159,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx80/report/exp/attention_summary.csv
+locations,tabdpt,2,80.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx80/report/exp/attention_summary.csv
+locations,tabdpt,3,80.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx80/report/exp/attention_summary.csv
+locations,tabdpt,4,80.0,AMIA row_max,0.9999962001603532,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx80/report/exp/attention_summary.csv
+locations,tabdpt,5,80.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx80/report/exp/attention_summary.csv
+locations,tabdpt,1,90.0,AMIA row_max,0.9999369234881912,ml_privacy_meter/logs/locations/tabdpt/seed1/amia_ctx90/report/exp/attention_summary.csv
+locations,tabdpt,2,90.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/amia_ctx90/report/exp/attention_summary.csv
+locations,tabdpt,3,90.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia_ctx90/report/exp/attention_summary.csv
+locations,tabdpt,4,90.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia_ctx90/report/exp/attention_summary.csv
+locations,tabdpt,5,90.0,AMIA row_max,0.999954945348708,ml_privacy_meter/logs/locations/tabdpt/seed5/amia_ctx90/report/exp/attention_summary.csv
+locations,tabdpt,1,100.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/amia/report/exp/attention_summary.csv
+locations,tabdpt,2,100.0,AMIA row_max,0.9999975699962579,ml_privacy_meter/logs/locations/tabdpt/seed2/amia/report/exp/attention_summary.csv
+locations,tabdpt,3,100.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/amia/report/exp/attention_summary.csv
+locations,tabdpt,4,100.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/amia/report/exp/attention_summary.csv
+locations,tabdpt,5,100.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/amia/report/exp/attention_summary.csv
+locations,tabdpt,1,5.0,RMIA,1.0,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabdpt,2,5.0,RMIA,1.0,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabdpt,3,5.0,RMIA,1.0,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabdpt,4,5.0,RMIA,1.0,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabdpt,5,5.0,RMIA,1.0,ml_privacy_meter/logs/locations/tabdpt/seed5/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabdpt,1,10.0,RMIA,0.98388671875,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabdpt,2,10.0,RMIA,0.9942626953125,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabdpt,3,10.0,RMIA,0.98095703125,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabdpt,4,10.0,RMIA,0.994384765625,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabdpt,5,10.0,RMIA,0.988525390625,ml_privacy_meter/logs/locations/tabdpt/seed5/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabdpt,1,20.0,RMIA,0.947723388671875,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabdpt,2,20.0,RMIA,0.95074462890625,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabdpt,3,20.0,RMIA,0.948699951171875,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabdpt,4,20.0,RMIA,0.947235107421875,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabdpt,1,30.0,RMIA,0.932278103298611,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabdpt,2,30.0,RMIA,0.9231228298611112,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabdpt,3,30.0,RMIA,0.9553765190972222,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabdpt,4,30.0,RMIA,0.9287923177083333,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabdpt,1,40.0,RMIA,0.9369376215953307,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabdpt,2,40.0,RMIA,0.9208642388132295,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabdpt,3,40.0,RMIA,0.9270883998054474,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabdpt,4,40.0,RMIA,0.9245424975680934,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabdpt,1,50.0,RMIA,0.9190177180685359,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabdpt,2,50.0,RMIA,0.9433946651090342,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabdpt,3,50.0,RMIA,0.926056269470405,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabdpt,4,50.0,RMIA,0.8967046339563862,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabdpt,1,60.0,RMIA,0.9358292748917749,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabdpt,2,60.0,RMIA,0.8981263528138528,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabdpt,3,60.0,RMIA,0.898430735930736,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabdpt,4,60.0,RMIA,0.8857548701298701,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabdpt,1,70.0,RMIA,0.9084181130053919,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabdpt,2,70.0,RMIA,0.9189537750308778,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabdpt,3,70.0,RMIA,0.8917192871067108,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabdpt,4,70.0,RMIA,0.9053055292384462,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabdpt,1,80.0,RMIA,0.9094650205761317,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabdpt,2,80.0,RMIA,0.9077531928152631,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabdpt,3,80.0,RMIA,0.9020306343072322,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabdpt,4,80.0,RMIA,0.8646402121830459,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabdpt,1,90.0,RMIA,0.8967047028045019,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabdpt,2,90.0,RMIA,0.8865133406822476,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabdpt,3,90.0,RMIA,0.8658017174833073,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabdpt,4,90.0,RMIA,0.853950842371797,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabdpt,1,100.0,RMIA,0.8856452388936679,ml_privacy_meter/logs/locations/tabdpt/seed1/rmia/report/exp/attack_result_0.npz
+locations,tabdpt,2,100.0,RMIA,0.9028423753772581,ml_privacy_meter/logs/locations/tabdpt/seed2/rmia/report/exp/attack_result_0.npz
+locations,tabdpt,3,100.0,RMIA,0.8996578554730974,ml_privacy_meter/logs/locations/tabdpt/seed3/rmia/report/exp/attack_result_0.npz
+locations,tabdpt,4,100.0,RMIA,0.9092964653165566,ml_privacy_meter/logs/locations/tabdpt/seed4/rmia/report/exp/attack_result_0.npz
+locations,tabdpt,5,100.0,RMIA,0.9100995815533557,ml_privacy_meter/logs/locations/tabdpt/seed5/rmia/report/exp/attack_result_0.npz
+locations,tabicl,1,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx5/report/exp/attention_summary.csv
+locations,tabicl,2,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx5/report/exp/attention_summary.csv
+locations,tabicl,3,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx5/report/exp/attention_summary.csv
+locations,tabicl,4,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx5/report/exp/attention_summary.csv
+locations,tabicl,5,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx5/report/exp/attention_summary.csv
+locations,tabicl,1,10.0,AMIA row_max,0.99853515625,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx10/report/exp/attention_summary.csv
+locations,tabicl,2,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx10/report/exp/attention_summary.csv
+locations,tabicl,3,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx10/report/exp/attention_summary.csv
+locations,tabicl,4,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx10/report/exp/attention_summary.csv
+locations,tabicl,5,10.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx10/report/exp/attention_summary.csv
+locations,tabicl,1,20.0,AMIA row_max,0.9989013671875,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx20/report/exp/attention_summary.csv
+locations,tabicl,2,20.0,AMIA row_max,0.99969482421875,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx20/report/exp/attention_summary.csv
+locations,tabicl,3,20.0,AMIA row_max,0.99969482421875,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx20/report/exp/attention_summary.csv
+locations,tabicl,4,20.0,AMIA row_max,0.99957275390625,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx20/report/exp/attention_summary.csv
+locations,tabicl,5,20.0,AMIA row_max,0.99957275390625,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx20/report/exp/attention_summary.csv
+locations,tabicl,1,30.0,AMIA row_max,0.9936252170138888,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx30/report/exp/attention_summary.csv
+locations,tabicl,2,30.0,AMIA row_max,0.9991590711805555,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx30/report/exp/attention_summary.csv
+locations,tabicl,3,30.0,AMIA row_max,0.9967447916666666,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx30/report/exp/attention_summary.csv
+locations,tabicl,4,30.0,AMIA row_max,0.9944390190972222,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx30/report/exp/attention_summary.csv
+locations,tabicl,5,30.0,AMIA row_max,0.9997016059027778,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx30/report/exp/attention_summary.csv
+locations,tabicl,1,40.0,AMIA row_max,0.9960633511673151,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx40/report/exp/attention_summary.csv
+locations,tabicl,2,40.0,AMIA row_max,0.9983432636186771,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx40/report/exp/attention_summary.csv
+locations,tabicl,3,40.0,AMIA row_max,0.9982216682879378,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx40/report/exp/attention_summary.csv
+locations,tabicl,4,40.0,AMIA row_max,0.9971121108949417,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx40/report/exp/attention_summary.csv
+locations,tabicl,5,40.0,AMIA row_max,0.992263497081712,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx40/report/exp/attention_summary.csv
+locations,tabicl,1,50.0,AMIA row_max,0.9982184579439253,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx50/report/exp/attention_summary.csv
+locations,tabicl,2,50.0,AMIA row_max,0.9896514797507788,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx50/report/exp/attention_summary.csv
+locations,tabicl,3,50.0,AMIA row_max,0.9952881619937695,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx50/report/exp/attention_summary.csv
+locations,tabicl,4,50.0,AMIA row_max,0.9976440809968847,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx50/report/exp/attention_summary.csv
+locations,tabicl,5,50.0,AMIA row_max,0.9988901869158878,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx50/report/exp/attention_summary.csv
+locations,tabicl,1,60.0,AMIA row_max,0.9903679653679653,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx60/report/exp/attention_summary.csv
+locations,tabicl,2,60.0,AMIA row_max,0.9967058982683983,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx60/report/exp/attention_summary.csv
+locations,tabicl,3,60.0,AMIA row_max,0.998626893939394,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx60/report/exp/attention_summary.csv
+locations,tabicl,4,60.0,AMIA row_max,0.9966585497835497,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx60/report/exp/attention_summary.csv
+locations,tabicl,5,60.0,AMIA row_max,0.9995468073593073,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx60/report/exp/attention_summary.csv
+locations,tabicl,1,70.0,AMIA row_max,0.9970337448722972,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx70/report/exp/attention_summary.csv
+locations,tabicl,2,70.0,AMIA row_max,0.9949653027514744,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx70/report/exp/attention_summary.csv
+locations,tabicl,3,70.0,AMIA row_max,0.9991220281645429,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx70/report/exp/attention_summary.csv
+locations,tabicl,4,70.0,AMIA row_max,0.9993849236858945,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx70/report/exp/attention_summary.csv
+locations,tabicl,5,70.0,AMIA row_max,0.9984176665790349,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx70/report/exp/attention_summary.csv
+locations,tabicl,1,80.0,AMIA row_max,0.994767620806402,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx80/report/exp/attention_summary.csv
+locations,tabicl,2,80.0,AMIA row_max,0.9993882258168706,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx80/report/exp/attention_summary.csv
+locations,tabicl,3,80.0,AMIA row_max,0.997146320425278,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx80/report/exp/attention_summary.csv
+locations,tabicl,4,80.0,AMIA row_max,0.9978910889960444,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx80/report/exp/attention_summary.csv
+locations,tabicl,5,80.0,AMIA row_max,0.9977884933255816,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx80/report/exp/attention_summary.csv
+locations,tabicl,1,90.0,AMIA row_max,0.9989847685242199,ml_privacy_meter/logs/locations/tabicl/seed1/amia_ctx90/report/exp/attention_summary.csv
+locations,tabicl,2,90.0,AMIA row_max,0.996173358283598,ml_privacy_meter/logs/locations/tabicl/seed2/amia_ctx90/report/exp/attention_summary.csv
+locations,tabicl,3,90.0,AMIA row_max,0.997296720922479,ml_privacy_meter/logs/locations/tabicl/seed3/amia_ctx90/report/exp/attention_summary.csv
+locations,tabicl,4,90.0,AMIA row_max,0.9996365591462444,ml_privacy_meter/logs/locations/tabicl/seed4/amia_ctx90/report/exp/attention_summary.csv
+locations,tabicl,5,90.0,AMIA row_max,0.9979575224747619,ml_privacy_meter/logs/locations/tabicl/seed5/amia_ctx90/report/exp/attention_summary.csv
+locations,tabicl,1,100.0,AMIA row_max,0.9983475974553001,ml_privacy_meter/logs/locations/tabicl/seed1/amia/report/exp/attention_summary.csv
+locations,tabicl,2,100.0,AMIA row_max,0.9982212372607054,ml_privacy_meter/logs/locations/tabicl/seed2/amia/report/exp/attention_summary.csv
+locations,tabicl,3,100.0,AMIA row_max,0.9967316449667333,ml_privacy_meter/logs/locations/tabicl/seed3/amia/report/exp/attention_summary.csv
+locations,tabicl,4,100.0,AMIA row_max,0.9992928689110182,ml_privacy_meter/logs/locations/tabicl/seed4/amia/report/exp/attention_summary.csv
+locations,tabicl,5,100.0,AMIA row_max,0.9977643965571708,ml_privacy_meter/logs/locations/tabicl/seed5/amia/report/exp/attention_summary.csv
+locations,tabicl,1,5.0,RMIA,0.970703125,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabicl,2,5.0,RMIA,0.99609375,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabicl,3,5.0,RMIA,0.9921875,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabicl,4,5.0,RMIA,0.98974609375,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabicl,5,5.0,RMIA,0.9873046875,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabicl,1,10.0,RMIA,0.8724365234375,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabicl,2,10.0,RMIA,0.9278564453125,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabicl,3,10.0,RMIA,0.8978271484375,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabicl,4,10.0,RMIA,0.9097900390625,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabicl,5,10.0,RMIA,0.926025390625,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabicl,1,20.0,RMIA,0.88677978515625,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabicl,2,20.0,RMIA,0.90850830078125,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabicl,3,20.0,RMIA,0.881378173828125,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabicl,4,20.0,RMIA,0.922607421875,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabicl,5,20.0,RMIA,0.879486083984375,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabicl,1,30.0,RMIA,0.9016791449652778,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabicl,2,30.0,RMIA,0.8829481336805555,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabicl,3,30.0,RMIA,0.8274603949652778,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabicl,4,30.0,RMIA,0.8790825737847222,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabicl,5,30.0,RMIA,0.8986816406249999,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabicl,1,40.0,RMIA,0.9108478234435797,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabicl,2,40.0,RMIA,0.8821361259727626,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabicl,3,40.0,RMIA,0.9194278939688716,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabicl,4,40.0,RMIA,0.9053000364785992,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabicl,5,40.0,RMIA,0.9174823686770428,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabicl,1,50.0,RMIA,0.891822429906542,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabicl,2,50.0,RMIA,0.9059530763239876,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabicl,3,50.0,RMIA,0.9032418224299065,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabicl,4,50.0,RMIA,0.8450301791277259,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabicl,5,50.0,RMIA,0.9025457554517134,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabicl,1,60.0,RMIA,0.9307359307359309,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabicl,2,60.0,RMIA,0.895508658008658,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabicl,3,60.0,RMIA,0.8918459145021644,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabicl,4,60.0,RMIA,0.8769446699134199,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabicl,5,60.0,RMIA,0.9237723214285715,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabicl,1,70.0,RMIA,0.8786141933819772,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabicl,2,70.0,RMIA,0.9076219860020536,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabicl,3,70.0,RMIA,0.8971756092479699,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabicl,4,70.0,RMIA,0.9012083273396461,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabicl,5,70.0,RMIA,0.885166740244344,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabicl,1,80.0,RMIA,0.9185162386147305,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabicl,2,80.0,RMIA,0.880743932606044,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabicl,3,80.0,RMIA,0.8982079956225847,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabicl,4,80.0,RMIA,0.8691335225653478,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabicl,5,80.0,RMIA,0.9083117692433379,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabicl,1,90.0,RMIA,0.9046583505792526,ml_privacy_meter/logs/locations/tabicl/seed1/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabicl,2,90.0,RMIA,0.8759675486364961,ml_privacy_meter/logs/locations/tabicl/seed2/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabicl,3,90.0,RMIA,0.8993809490912477,ml_privacy_meter/logs/locations/tabicl/seed3/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabicl,4,90.0,RMIA,0.887081029288527,ml_privacy_meter/logs/locations/tabicl/seed4/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabicl,5,90.0,RMIA,0.9091893466775198,ml_privacy_meter/logs/locations/tabicl/seed5/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabicl,1,100.0,RMIA,0.9098881712277838,ml_privacy_meter/logs/locations/tabicl/seed1/rmia/report/exp/attack_result_0.npz
+locations,tabicl,2,100.0,RMIA,0.8870971661296357,ml_privacy_meter/logs/locations/tabicl/seed2/rmia/report/exp/attack_result_0.npz
+locations,tabicl,3,100.0,RMIA,0.8979082527787093,ml_privacy_meter/logs/locations/tabicl/seed3/rmia/report/exp/attack_result_0.npz
+locations,tabicl,4,100.0,RMIA,0.9015216683433693,ml_privacy_meter/logs/locations/tabicl/seed4/rmia/report/exp/attack_result_0.npz
+locations,tabicl,5,100.0,RMIA,0.9003625565583372,ml_privacy_meter/logs/locations/tabicl/seed5/rmia/report/exp/attack_result_0.npz
+locations,tabpfn,1,5.0,AMIA row_max,0.9775390625,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx5/report/exp/attention_summary.csv
+locations,tabpfn,2,5.0,AMIA row_max,0.9541015625,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx5/report/exp/attention_summary.csv
+locations,tabpfn,3,5.0,AMIA row_max,0.9990234375,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx5/report/exp/attention_summary.csv
+locations,tabpfn,4,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx5/report/exp/attention_summary.csv
+locations,tabpfn,5,5.0,AMIA row_max,1.0,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx5/report/exp/attention_summary.csv
+locations,tabpfn,1,10.0,AMIA row_max,0.95556640625,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx10/report/exp/attention_summary.csv
+locations,tabpfn,2,10.0,AMIA row_max,0.949951171875,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx10/report/exp/attention_summary.csv
+locations,tabpfn,3,10.0,AMIA row_max,0.96484375,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx10/report/exp/attention_summary.csv
+locations,tabpfn,4,10.0,AMIA row_max,0.971923828125,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx10/report/exp/attention_summary.csv
+locations,tabpfn,5,10.0,AMIA row_max,0.966064453125,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx10/report/exp/attention_summary.csv
+locations,tabpfn,2,20.0,AMIA row_max,0.95367431640625,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx20/report/exp/attention_summary.csv
+locations,tabpfn,3,20.0,AMIA row_max,0.9488525390625,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx20/report/exp/attention_summary.csv
+locations,tabpfn,4,20.0,AMIA row_max,0.94671630859375,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx20/report/exp/attention_summary.csv
+locations,tabpfn,5,20.0,AMIA row_max,0.96435546875,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx20/report/exp/attention_summary.csv
+locations,tabpfn,1,30.0,AMIA row_max,0.9378255208333334,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx30/report/exp/attention_summary.csv
+locations,tabpfn,2,30.0,AMIA row_max,0.9493543836805556,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx30/report/exp/attention_summary.csv
+locations,tabpfn,3,30.0,AMIA row_max,0.956759982638889,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx30/report/exp/attention_summary.csv
+locations,tabpfn,4,30.0,AMIA row_max,0.9504937065972221,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx30/report/exp/attention_summary.csv
+locations,tabpfn,5,30.0,AMIA row_max,0.9544542100694444,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx30/report/exp/attention_summary.csv
+locations,tabpfn,1,40.0,AMIA row_max,0.9416342412451362,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx40/report/exp/attention_summary.csv
+locations,tabpfn,2,40.0,AMIA row_max,0.9436253647859922,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx40/report/exp/attention_summary.csv
+locations,tabpfn,3,40.0,AMIA row_max,0.9226577699416343,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx40/report/exp/attention_summary.csv
+locations,tabpfn,4,40.0,AMIA row_max,0.9538089737354085,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx40/report/exp/attention_summary.csv
+locations,tabpfn,5,40.0,AMIA row_max,0.9492339494163424,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx40/report/exp/attention_summary.csv
+locations,tabpfn,1,50.0,AMIA row_max,0.9445677570093458,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx50/report/exp/attention_summary.csv
+locations,tabpfn,2,50.0,AMIA row_max,0.9467679127725858,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx50/report/exp/attention_summary.csv
+locations,tabpfn,3,50.0,AMIA row_max,0.9290985202492212,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx50/report/exp/attention_summary.csv
+locations,tabpfn,4,50.0,AMIA row_max,0.9576908099688475,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx50/report/exp/attention_summary.csv
+locations,tabpfn,5,50.0,AMIA row_max,0.9507496105919002,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx50/report/exp/attention_summary.csv
+locations,tabpfn,1,60.0,AMIA row_max,0.946969696969697,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx60/report/exp/attention_summary.csv
+locations,tabpfn,2,60.0,AMIA row_max,0.9501149891774892,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx60/report/exp/attention_summary.csv
+locations,tabpfn,3,60.0,AMIA row_max,0.9588609307359307,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx60/report/exp/attention_summary.csv
+locations,tabpfn,4,60.0,AMIA row_max,0.9583739177489178,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx60/report/exp/attention_summary.csv
+locations,tabpfn,5,60.0,AMIA row_max,0.9437635281385282,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx60/report/exp/attention_summary.csv
+locations,tabpfn,1,70.0,AMIA row_max,0.9358038898616574,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx70/report/exp/attention_summary.csv
+locations,tabpfn,2,70.0,AMIA row_max,0.9172077519456748,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx70/report/exp/attention_summary.csv
+locations,tabpfn,3,70.0,AMIA row_max,0.9287205916637319,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx70/report/exp/attention_summary.csv
+locations,tabpfn,4,70.0,AMIA row_max,0.9544893130490424,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx70/report/exp/attention_summary.csv
+locations,tabpfn,5,70.0,AMIA row_max,0.9479268456009644,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx70/report/exp/attention_summary.csv
+locations,tabpfn,1,80.0,AMIA row_max,0.9010673749567768,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx80/report/exp/attention_summary.csv
+locations,tabpfn,2,80.0,AMIA row_max,0.9475850119124972,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx80/report/exp/attention_summary.csv
+locations,tabpfn,3,80.0,AMIA row_max,0.9289429986054588,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx80/report/exp/attention_summary.csv
+locations,tabpfn,4,80.0,AMIA row_max,0.9455520977014771,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx80/report/exp/attention_summary.csv
+locations,tabpfn,5,80.0,AMIA row_max,0.9321576629466236,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx80/report/exp/attention_summary.csv
+locations,tabpfn,1,90.0,AMIA row_max,0.9436216130165892,ml_privacy_meter/logs/locations/tabpfn/seed1/amia_ctx90/report/exp/attention_summary.csv
+locations,tabpfn,2,90.0,AMIA row_max,0.9362777048559904,ml_privacy_meter/logs/locations/tabpfn/seed2/amia_ctx90/report/exp/attention_summary.csv
+locations,tabpfn,3,90.0,AMIA row_max,0.9430419098366317,ml_privacy_meter/logs/locations/tabpfn/seed3/amia_ctx90/report/exp/attention_summary.csv
+locations,tabpfn,4,90.0,AMIA row_max,0.950400836214328,ml_privacy_meter/logs/locations/tabpfn/seed4/amia_ctx90/report/exp/attention_summary.csv
+locations,tabpfn,5,90.0,AMIA row_max,0.909064695475612,ml_privacy_meter/logs/locations/tabpfn/seed5/amia_ctx90/report/exp/attention_summary.csv
+locations,tabpfn,1,100.0,AMIA row_max,0.9411623193899719,ml_privacy_meter/logs/locations/tabpfn/seed1/amia/report/exp/attention_summary.csv
+locations,tabpfn,2,100.0,AMIA row_max,0.9291532408959909,ml_privacy_meter/logs/locations/tabpfn/seed2/amia/report/exp/attention_summary.csv
+locations,tabpfn,3,100.0,AMIA row_max,0.9413494296781219,ml_privacy_meter/logs/locations/tabpfn/seed3/amia/report/exp/attention_summary.csv
+locations,tabpfn,4,100.0,AMIA row_max,0.9382390248880984,ml_privacy_meter/logs/locations/tabpfn/seed4/amia/report/exp/attention_summary.csv
+locations,tabpfn,5,100.0,AMIA row_max,0.920497567566254,ml_privacy_meter/logs/locations/tabpfn/seed5/amia/report/exp/attention_summary.csv
+locations,tabpfn,1,5.0,RMIA,0.927734375,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabpfn,2,5.0,RMIA,0.953125,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabpfn,3,5.0,RMIA,0.91845703125,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabpfn,4,5.0,RMIA,0.9541015625,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabpfn,5,5.0,RMIA,0.8837890625,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx5/report/exp/attack_result_0.npz
+locations,tabpfn,1,10.0,RMIA,0.9759521484375,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabpfn,2,10.0,RMIA,0.9315185546875,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabpfn,3,10.0,RMIA,0.9520263671875,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabpfn,4,10.0,RMIA,0.944091796875,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabpfn,5,10.0,RMIA,0.9508056640625,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx10/report/exp/attack_result_0.npz
+locations,tabpfn,1,20.0,RMIA,0.93597412109375,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabpfn,2,20.0,RMIA,0.9656982421875,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabpfn,3,20.0,RMIA,0.95623779296875,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabpfn,4,20.0,RMIA,0.93548583984375,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabpfn,5,20.0,RMIA,0.930084228515625,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx20/report/exp/attack_result_0.npz
+locations,tabpfn,1,30.0,RMIA,0.9463026258680556,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabpfn,2,30.0,RMIA,0.96044921875,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabpfn,3,30.0,RMIA,0.9249810112847222,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabpfn,4,30.0,RMIA,0.9348822699652778,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabpfn,5,30.0,RMIA,0.9416368272569444,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx30/report/exp/attack_result_0.npz
+locations,tabpfn,1,40.0,RMIA,0.9295051070038911,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabpfn,2,40.0,RMIA,0.8968339615758755,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabpfn,3,40.0,RMIA,0.9112886065175096,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabpfn,4,40.0,RMIA,0.8945388497081712,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabpfn,5,40.0,RMIA,0.9430629863813229,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx40/report/exp/attack_result_0.npz
+locations,tabpfn,1,50.0,RMIA,0.8909608644859812,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabpfn,2,50.0,RMIA,0.9191686137071652,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabpfn,3,50.0,RMIA,0.9034267912772586,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabpfn,4,50.0,RMIA,0.8775554906542056,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabpfn,5,50.0,RMIA,0.9252093068535826,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx50/report/exp/attack_result_0.npz
+locations,tabpfn,1,60.0,RMIA,0.9073119588744588,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabpfn,2,60.0,RMIA,0.8979606331168832,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabpfn,3,60.0,RMIA,0.890435606060606,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabpfn,4,60.0,RMIA,0.860349025974026,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabpfn,5,60.0,RMIA,0.9094460227272727,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx60/report/exp/attack_result_0.npz
+locations,tabpfn,1,70.0,RMIA,0.9105187970297766,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabpfn,2,70.0,RMIA,0.8675527403137882,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabpfn,3,70.0,RMIA,0.8677387512958765,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabpfn,4,70.0,RMIA,0.8734604491049152,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabpfn,5,70.0,RMIA,0.8876518469650448,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx70/report/exp/attack_result_0.npz
+locations,tabpfn,1,80.0,RMIA,0.8822467691863403,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabpfn,2,80.0,RMIA,0.8802138549753201,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabpfn,3,80.0,RMIA,0.8656547693687326,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabpfn,4,80.0,RMIA,0.8513464731788319,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabpfn,5,80.0,RMIA,0.8500678271376947,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx80/report/exp/attack_result_0.npz
+locations,tabpfn,1,90.0,RMIA,0.8730630254498707,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabpfn,2,90.0,RMIA,0.8399839004712717,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabpfn,3,90.0,RMIA,0.8555683043531804,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabpfn,4,90.0,RMIA,0.8661005800035444,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabpfn,5,90.0,RMIA,0.8612677177416206,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia_ctx90/report/exp/attack_result_0.npz
+locations,tabpfn,1,100.0,RMIA,0.847466235098002,ml_privacy_meter/logs/locations/tabpfn/seed1/rmia/report/exp/attack_result_0.npz
+locations,tabpfn,2,100.0,RMIA,0.7959100607014935,ml_privacy_meter/logs/locations/tabpfn/seed2/rmia/report/exp/attack_result_0.npz
+locations,tabpfn,3,100.0,RMIA,0.8485731018025767,ml_privacy_meter/logs/locations/tabpfn/seed3/rmia/report/exp/attack_result_0.npz
+locations,tabpfn,4,100.0,RMIA,0.83939983767575,ml_privacy_meter/logs/locations/tabpfn/seed4/rmia/report/exp/attack_result_0.npz
+locations,tabpfn,5,100.0,RMIA,0.8503069094726405,ml_privacy_meter/logs/locations/tabpfn/seed5/rmia/report/exp/attack_result_0.npz

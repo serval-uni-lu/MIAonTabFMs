@@ -1,0 +1,3 @@
+dataset,model,attack,attack_label,score_col,mean_auc,std_auc_across_seeds,n_seeds,n_samples_mean,n_members_mean,n_nonmembers_mean
+locations,tabpfn,rmia,RMIA,rmia_score,0.8363312289500925,0.02298074553300779,5,1283.0,641.0,642.0
+locations,tabpfn,amia,AMIA,row_max,0.9340803164836874,0.009069960989331126,5,1283.0,641.0,642.0

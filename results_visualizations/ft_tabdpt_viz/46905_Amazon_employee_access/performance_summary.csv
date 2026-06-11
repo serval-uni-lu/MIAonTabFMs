@@ -1,0 +1,12 @@
+metric,model,value,delta
+Train accuracy,original,0.942138671875,0.0
+Train accuracy,finetuned,0.9906005859375,0.0484619140625
+Test accuracy,original,0.9422677895764677,0.0
+Test accuracy,finetuned,0.9293299157817649,-0.012937873794702792
+Member true-label prob.,original,0.9114329218864441,0.0
+Member true-label prob.,finetuned,0.9888426065444946,0.07740968465805054
+Non-member true-label prob.,original,0.9115901589393616,0.0
+Non-member true-label prob.,finetuned,0.9218229651451111,0.010232806205749512
+MIA AUC,original,0.49808190762996674,0.0
+MIA AUC,finetuned,0.5357033833861351,0.037621475756168365
+MIA AUC: logit delta,finetuned,0.555741623044014,

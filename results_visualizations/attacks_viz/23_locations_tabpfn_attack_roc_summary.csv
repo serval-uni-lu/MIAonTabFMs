@@ -1,0 +1,4 @@
+dataset,model,attack,attack_label,mean_auc,std_auc_across_seeds,n_seeds
+locations,tabpfn,rmia,RMIA,0.8363312289500925,0.02298074553300779,5
+locations,tabpfn,lira,LiRA,0.7034996913895247,0.017363503690118284,5
+locations,tabpfn,attack_p,Attack-P,0.7121009326354362,0.009043241810796345,5

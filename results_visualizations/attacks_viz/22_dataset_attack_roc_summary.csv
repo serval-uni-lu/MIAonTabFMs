@@ -1,0 +1,7 @@
+dataset,attack,attack_label,mean_auc,std_auc_across_models,n_models,n_seed_curves
+locations,rmia,RMIA,0.8488418602164647,0.08059686460465387,8,40
+locations,lira,LiRA,0.7020524115357138,0.04776438686170644,8,40
+locations,attack_p,Attack-P,0.7967429748591812,0.09727251906891664,8,40
+dropout_success,rmia,RMIA,0.7616013681015856,0.1288248231708546,8,40
+dropout_success,lira,LiRA,0.6461480768133777,0.06979106660587224,8,40
+dropout_success,attack_p,Attack-P,0.6284442386151705,0.11916645954152581,8,40

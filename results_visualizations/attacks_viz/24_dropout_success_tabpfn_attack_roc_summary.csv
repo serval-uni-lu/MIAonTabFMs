@@ -1,0 +1,4 @@
+dataset,model,attack,attack_label,mean_auc,std_auc_across_seeds,n_seeds
+dropout_success,tabpfn,rmia,RMIA,0.7158132836000394,0.013356387075550258,5
+dropout_success,tabpfn,lira,LiRA,0.6325352316860088,0.0068618519205052575,5
+dropout_success,tabpfn,attack_p,Attack-P,0.5545844701176951,0.01318950692175744,5

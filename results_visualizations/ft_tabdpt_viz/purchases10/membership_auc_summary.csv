@@ -1,0 +1,5 @@
+score,auc
+Original true-label prob.,0.5025511767602651
+Fine-tuned true-label prob.,0.5729112228752724
+Logit delta,0.6164018003534828
+Probability delta,0.5629377873481987

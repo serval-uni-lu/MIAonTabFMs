@@ -1,0 +1,3 @@
+membership_group,row_max_delta_mean,row_max_delta_median,row_ent_delta_mean,row_ent_delta_median
+Member,-0.010472457804796215,-0.012821671,0.0655570970940081,0.07103014
+Non-member,-0.010488106125123658,-0.013129212,0.06547185574501113,0.0706687
