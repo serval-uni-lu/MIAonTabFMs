@@ -1,5 +1,4 @@
 import os
-import re
 import subprocess
 import sys
 
@@ -7,38 +6,14 @@ import sys
 _SENTINEL = ".setup_done"
 
 
-def remove_cuda_packages(requirements_file: str):
-    """Removes CUDA-specific packages from a requirements file in-place."""
-    if not os.path.exists(requirements_file):
-        print(f"{requirements_file} not found, skipping CUDA cleanup.")
-        return
-
-    cuda_pattern = re.compile(
-        r"(?i)(cupy|cuda|torch.*cu\d|torchvision.*cu\d|torchaudio.*cu\d|nvidia-)",
-    )
-
-    with open(requirements_file, "r") as f:
-        lines = f.readlines()
-
-    cleaned = [line for line in lines if not cuda_pattern.search(line)]
-
-    if len(cleaned) < len(lines):
-        removed = len(lines) - len(cleaned)
-        with open(requirements_file, "w") as f:
-            f.writelines(cleaned)
-        print(f"Removed {removed} CUDA package(s) from {requirements_file}.")
-    else:
-        print("No CUDA packages found in requirements.txt.")
-
-
-def clone_and_setup_repo(user_name: str, repo_name: str = "ml_privacy_meter"):
+def clone_and_setup_repo(user_name: str = "tmcarvalho", repo_name: str = "ml_privacy_meter"):
     """
-    Clones a forked GitHub repo and sets up the environment path.
+    Clones the configured GitHub repo and sets up the environment path.
     The full setup (clone + install) only runs once; subsequent calls
     only ensure sys.path is correct.
 
     Args:
-        user_name (str): Your GitHub username containing the fork.
+        user_name (str): GitHub username or organization containing the repo.
         repo_name (str): The repository name (default: ml_privacy_meter)
     """
     clone_dir = os.path.join(os.getcwd(), repo_name)
@@ -67,9 +42,6 @@ def clone_and_setup_repo(user_name: str, repo_name: str = "ml_privacy_meter"):
 
     requirements_file = os.path.join(clone_dir, "requirements.txt")
 
-    # Clean CUDA packages from requirements.txt
-    remove_cuda_packages(requirements_file)
-
     # Install dependencies
     try:
         subprocess.run(
@@ -94,7 +66,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Clone and set up ml_privacy_meter.")
-    parser.add_argument("user_name", help="GitHub username with the forked repo")
+    parser.add_argument(
+        "user_name",
+        nargs="?",
+        default="tmcarvalho",
+        help="GitHub username or organization containing the repo (default: tmcarvalho)",
+    )
     parser.add_argument("--repo", default="ml_privacy_meter", help="Repo name (default: ml_privacy_meter)")
     args = parser.parse_args()
 

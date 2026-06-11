@@ -46,13 +46,13 @@ For any new dataset, place `<dataset>.csv` in `data/original/` with the label in
 
 ## Clone ml_privacy_meter
 
-Necessary for RMIA. If `ml_privacy_meter/` is not present, set it up with:
+Necessary for RMIA. This project expects the `ml_privacy_meter` fork at
+[`tmcarvalho/ml_privacy_meter`](https://github.com/tmcarvalho/ml_privacy_meter.git).
 
 ```bash
-uv run setup_repo.py <your-github-username>
+uv run setup_repo.py
 ```
-
-This clones your fork, strips CUDA packages from `requirements.txt`, and installs dependencies via `uv`.
+Original [`ml_privacy_meter`](https://github.com/privacytrustlab/ml_privacy_meter). 
 
 ---
 
