@@ -46,8 +46,7 @@ For any new dataset, place `<dataset>.csv` in `data/original/` with the label in
 
 ## Clone ml_privacy_meter
 
-Necessary for RMIA. This project expects the `ml_privacy_meter` fork at
-[`tmcarvalho/ml_privacy_meter`](https://github.com/tmcarvalho/ml_privacy_meter.git).
+Necessary for RMIA. This project expects the `ml_privacy_meter` fork at __anonymous__.
 
 ```bash
 uv run setup_repo.py
