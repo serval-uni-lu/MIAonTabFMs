@@ -4935,7 +4935,7 @@ class ResultsAnalyzer:
             fig, axes = plt.subplots(
                 len(datasets),
                 len(models),
-                figsize=(17.0, 7.2),
+                figsize=(17.0, 5.8),
                 squeeze=False,
                 sharex=True,
                 sharey=True,
@@ -5033,6 +5033,90 @@ class ResultsAnalyzer:
             fig.savefig(combined_out, dpi=300, bbox_inches="tight")
             plt.close(fig)
         logger.info("Saved combined context RMIA/AMIA evolution plot to %s", combined_out)
+
+        with plt.rc_context({
+            "font.size": 12,
+            "axes.titlesize": 14,
+            "axes.labelsize": 12,
+            "xtick.labelsize": 10,
+            "ytick.labelsize": 10,
+            "legend.fontsize": 12,
+        }):
+            fig, axes = plt.subplots(
+                len(datasets),
+                len(models),
+                figsize=(17.0, 5.8),
+                squeeze=False,
+                sharex=True,
+                sharey=True,
+            )
+            for row_idx, dataset in enumerate(datasets):
+                for col_idx, model in enumerate(models):
+                    ax = axes[row_idx, col_idx]
+                    model_df = all_summary[
+                        (all_summary["dataset"] == dataset)
+                        & (all_summary["model"].astype(str) == model)
+                    ]
+                    for attack, style in attack_styles.items():
+                        attack_df = model_df[model_df["attack"] == attack].sort_values("context_pct")
+                        if attack_df.empty:
+                            continue
+                        x = attack_df["context_pct"].to_numpy(dtype=float)
+                        y = attack_df["auc_mean"].to_numpy(dtype=float)
+                        std = attack_df["auc_std"].fillna(0.0).to_numpy(dtype=float)
+                        ax.plot(
+                            x,
+                            y,
+                            marker=style["marker"],
+                            linestyle=style["linestyle"],
+                            linewidth=2.1,
+                            markersize=5.2,
+                            color=style["color"],
+                            label=attack.replace(" row_max", ""),
+                        )
+                        if len(std) and np.nanmax(std) > 0:
+                            ax.fill_between(
+                                x,
+                                np.maximum(0, y - std),
+                                np.minimum(1, y + std),
+                                color=style["color"],
+                                alpha=0.12,
+                                linewidth=0,
+                            )
+                    ax.axhline(0.5, color="#777777", linestyle=":", linewidth=1.0)
+                    if row_idx == 0:
+                        ax.set_title(model_labels.get(model, model), fontweight="bold")
+                    if col_idx == 0:
+                        ax.set_ylabel("MIA AUC")
+                        ax.text(
+                            -0.30,
+                            0.5,
+                            dataset_labels.get(dataset, dataset),
+                            transform=ax.transAxes,
+                            rotation=90,
+                            va="center",
+                            ha="center",
+                            fontsize=14,
+                            fontweight="bold",
+                        )
+                    if row_idx == len(datasets) - 1:
+                        ax.set_xlabel("Context size (%)")
+                    ax.set_xlim(0, 105)
+                    ax.set_ylim(0.45, 1.02)
+                    ax.set_xticks([5, 10, 20, 40, 60, 80, 100])
+                    ax.set_xticklabels(["5", "10", "20", "40", "60", "80", "100"])
+                    ax.grid(True, alpha=0.25)
+
+            handles = [
+                Line2D([0], [0], color=style["color"], marker=style["marker"], linestyle=style["linestyle"], linewidth=2.1, markersize=5.2, label=attack.replace(" row_max", ""))
+                for attack, style in attack_styles.items()
+            ]
+            fig.legend(handles=handles, loc="lower center", ncol=2, frameon=True, bbox_to_anchor=(0.5, -0.02))
+            fig.tight_layout(rect=(0.02, 0.05, 1, 1))
+            combined_no_acc_out = os.path.join(save_dir, "29_a_context_rmia_amia_evolution_combined.png")
+            fig.savefig(combined_no_acc_out, dpi=300, bbox_inches="tight")
+            plt.close(fig)
+        logger.info("Saved combined context RMIA/AMIA evolution plot without accuracy to %s", combined_no_acc_out)
 
     # ── plot registry ─────────────────────────────────────────────────────────
     # Maps CLI key: (method_name, needs_rmia_filter).
