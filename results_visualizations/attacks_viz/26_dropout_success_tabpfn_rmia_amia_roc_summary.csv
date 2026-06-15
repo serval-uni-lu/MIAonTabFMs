@@ -1,3 +1,0 @@
-dataset,model,attack,attack_label,score_col,mean_auc,std_auc_across_seeds,n_seeds,n_samples_mean,n_members_mean,n_nonmembers_mean
-dropout_success,tabpfn,rmia,RMIA,rmia_score,0.7158132836000394,0.013356387075550258,5,3318.0,1659.0,1659.0
-dropout_success,tabpfn,amia,AMIA,row_max,0.8789872836385528,0.028512012361178014,5,3318.0,1659.0,1659.0

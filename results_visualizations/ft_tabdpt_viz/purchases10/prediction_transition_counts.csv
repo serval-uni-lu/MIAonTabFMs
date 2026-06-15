@@ -1,9 +1,0 @@
-transition,count,split
-True -> True,8320,membership
-False -> True,1153,membership
-False -> False,222,membership
-True -> False,186,membership
-True -> True,4115,test
-False -> True,423,test
-False -> False,214,test
-True -> False,189,test

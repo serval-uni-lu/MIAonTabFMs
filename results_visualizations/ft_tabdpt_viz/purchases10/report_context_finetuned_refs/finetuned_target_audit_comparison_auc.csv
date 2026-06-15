@@ -1,4 +1,0 @@
-comparison,raw_auc,best_auc,direction
-fine_tune_members_vs_nonmembers,0.5179331496271387,0.5179331496271387,higher = audit member
-context_members_vs_nonmembers,0.6168316595245062,0.6168316595245062,higher = audit member
-fine_tune_members_vs_context_members,0.3856646280359251,0.614335371964075,lower = fine-tune
