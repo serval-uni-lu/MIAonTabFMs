@@ -66,7 +66,8 @@ Necessary for RMIA. This project expects the `ml_privacy_meter` fork at
 ```bash
 uv run setup_repo.py
 ```
-Original [`tmcarvalho/ml_privacy_meter`](https://github.com/privacytrustlab/ml_privacy_meter). 
+Original [`ml_privacy_meter`](https://github.com/privacytrustlab/ml_privacy_meter). 
+
 ---
 
 ## Supported Models
