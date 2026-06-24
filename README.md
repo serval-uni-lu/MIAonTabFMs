@@ -14,6 +14,20 @@ git checkout 6.3.2
 cd ..
 ```
 
+**Patch TabPFN for AMIA and defenses** after checking out `6.3.2`:
+```bash
+cp full_attention.py TabPFN/src/tabpfn/architectures/base/attention/full_attention.py
+cp layer.py TabPFN/src/tabpfn/architectures/base/layer.py
+```
+
+These two files are needed because AMIA and the TabPFN/real-TabPFN attention
+defenses need internal access to TabPFN item attention. `full_attention.py` adds
+attention-weight capture and defense hooks such as k-anonymous keys and
+inference-time attention dropout. `layer.py` marks the TabPFN train/test
+item-attention calls so the code can distinguish test-to-train cross-attention
+from train-to-train self-attention. TabICL and TabDPT use external runtime
+wrappers instead, so only the local TabPFN checkout needs these file replacements.
+
 **Create the environment and install dependencies:**
 ```bash
 uv venv --python 3.12
@@ -46,13 +60,13 @@ For any new dataset, place `<dataset>.csv` in `data/original/` with the label in
 
 ## Clone ml_privacy_meter
 
-Necessary for RMIA. This project expects the `ml_privacy_meter` fork at __anonymous__.
+Necessary for RMIA. This project expects the `ml_privacy_meter` fork at
+[`tmcarvalho/ml_privacy_meter`](https://github.com/tmcarvalho/ml_privacy_meter.git).
 
 ```bash
 uv run setup_repo.py
 ```
-Original [`ml_privacy_meter`](https://github.com/privacytrustlab/ml_privacy_meter). 
-
+Original [`tmcarvalho/ml_privacy_meter`](https://github.com/privacytrustlab/ml_privacy_meter). 
 ---
 
 ## Supported Models
@@ -362,52 +376,8 @@ Requires the corresponding `rmia_ctx<pct>/` runs to exist (produced by `run_cont
 
 ## Defenses
 
-The **HAMP** (High-confidence Adversarial Membership Privacy) defense is a test-time output perturbation. It replaces each sample's predicted probability magnitudes with those obtained on a random input, while preserving the rank order (argmax is unchanged). This reduces confidence without affecting classification accuracy significantly.
-
 Results are written to `{attack}/defense_hamp/report/` alongside a `defense_accuracy.csv` that reports accuracy and average confidence before and after the defense.
 
 For **TabFM / TabPFN defenses beyond HAMP**, see
-[run_defenses/README.md](run_defenses/README.md). It covers k-anon, label
-k-anon, kNN smoothing, attention dropout/clipping, auto top-layer dropout, and
-high-risk guardrails, including the seeded defense workflow.
-
-
-## Visualize Results
-
-```bash
-uv run results_visualizations/attacks_viz.py                          # all attack plots
-uv run results_visualizations/attacks_viz.py 1 2 9                   # selected attack plots by key
-uv run results_visualizations/attacks_viz.py amia                    # AMIA summary plots only
-uv run results_visualizations/attacks_viz.py ctx_amia --dataset adult --model tabicl
-uv run results_visualizations/defenses_viz.py                        # defense plots, filtered to MIC defense set
-```
-
-`attacks_viz.py` writes attack figures and CSVs to `results_visualizations/attacks_viz/`. `defenses_viz.py` reads `ml_privacy_meter/logs/*/{tabpfn,real-tabpfn,tabicl,tabdpt}/defense/defense_eval_results.csv`, keeps only defenses whose canonical names appear in `46980_MIC`, and writes raw privacy-utility plots, delta tradeoff plots, metric heatmaps, family-level deltas, focused high-risk plots, best-defense tables, and parameter-evolution plots for `locations` and `dropout_success` to `results_visualizations/defenses_viz/`.
-
-Failed RMIA runs are recorded to `results_visualizations/attacks_viz/rmia_failed_runs.csv`.
-
-AMIA plots read seeded AMIA outputs from `attack_result_seed_runs.csv` when
-available, and otherwise recompute AUCs from
-`seed*/amia/report/exp/attention_summary.csv`. The generated AMIA CSVs use one
-row per seed and one summary row per dataset/model with seed mean and seed std.
-
-### Plot index
-
-| Key | Output file(s) | Description | Data scope |
-|---|---|---|---|
-| `0` | `00_dataset_properties_summary.png` | Dataset size, features, class balance | All |
-| `1` | `01_accuracy_comparison_rmia.png` | Target model accuracy vs reference models | RMIA |
-| `1b` | `01b_accuracy_target_vs_reference_online.png`<br>`01c_accuracy_target_only_offline.png` | Target vs reference accuracy (online / offline split) | RMIA |
-| `2` | `02_attack_auc_comparison_rmia.png`<br>`03_attack_auc_heatmap_rmia.png` | Attack AUC bar chart and heatmap by model | RMIA |
-| `4` | `04_comprehensive_dashboard_rmia.png` | Combined accuracy + AUC dashboard | RMIA |
-| `5` | `06a_member_nonmember_kde_{dataset}.png`<br>`06b_attack_effectiveness_{dataset}.png` | Member / non-member score distributions and ROC | RMIA |
-| `8` | `08_dataset_stats_auc_correlation_rmia.png` | Dataset statistics vs attack AUC correlations | RMIA |
-| `9` | `09_attack_comparison_by_model.png`<br>`10_attack_auc_heatmaps.png`<br>`11_attack_auc_per_dataset.png`<br>`12_tpr_comparison_by_model.png` | Cross-attack AUC comparison (all attacks) | All |
-| `13` | `13_predict_type_auc_comparison.png` | Predict-type influence on AUC | RMIA |
-| `14` | `14a_rmia_online_vs_offline_by_model.png`<br>`14b_lira_online_vs_offline_by_model.png`<br>`14c_online_gain_heatmap.png` | Online vs offline attack gain for RMIA and LiRA | All |
-| `15` | `15_swarmplot_summary.png` | Summary swarmplot across all attacks × models | All |
-| `16` / `amia` | `16_amia_auc_by_model.png`<br>`16_amia_seed_runs.csv`<br>`16_amia_seed_summary.csv`<br>`17_amia_row_max_heatmap.png`<br>`18_amia_row_max_per_dataset.png`<br>`19_amia_vs_rmia_auc.png`<br>`19_amia_vs_rmia_auc.csv`<br>`20_amia_rmia_paired_differences.png`<br>`20_amia_rmia_paired_differences.csv`<br>`20_amia_rmia_significance_summary.csv` | AMIA seed summaries, row-max heatmap, per-dataset seed-std bars, AMIA-vs-RMIA comparison, and paired Wilcoxon/bootstrap significance table | AMIA + RMIA summary |
-| `ctx_size` | `07a_context_size_auc.png`<br>`07b_context_size_summary.png` | Context size vs attack AUC (foundation models) | All |
-| `ctx_amia` | `ctx_amia_sweep_{dataset}_{model}.png` | AMIA context sweep — requires `--dataset` / `--model` | All |
-| `proxy` | `P01_proxy_*_gain.png`<br>`P02a_proxy_winrate_heatmap.png`<br>`P03_proxy_significance_heatmap.png` | Proxy model attack gain and win-rate | All |
-| `feature_corr` | `09_feature_target_correlation_summary_rmia.csv` | Feature–target correlation table (CSV, no plot) | RMIA |
+[run_defenses/README.md](run_defenses/README.md). It covers label
+k-anon, attention dropout, auto top-layer dropout, and high-risk guardrails, including the seeded defense workflow.
