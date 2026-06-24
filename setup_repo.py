@@ -6,7 +6,7 @@ import sys
 _SENTINEL = ".setup_done"
 
 
-def clone_and_setup_repo(user_name: str = "anonymous", repo_name: str = "ml_privacy_meter"):
+def clone_and_setup_repo(user_name: str = "tmcarvalho", repo_name: str = "ml_privacy_meter"):
     """
     Clones the configured GitHub repo and sets up the environment path.
     The full setup (clone + install) only runs once; subsequent calls
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "user_name",
         nargs="?",
-        default="anonymous",
-        help="GitHub username or organization containing the repo (default: anonymous)",
+        default="tmcarvalho",
+        help="GitHub username or organization containing the repo (default: tmcarvalho)",
     )
     parser.add_argument("--repo", default="ml_privacy_meter", help="Repo name (default: ml_privacy_meter)")
     args = parser.parse_args()
