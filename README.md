@@ -382,14 +382,3 @@ Requires the corresponding `rmia_ctx<pct>/` runs to exist (produced by `run_cont
 
 `amia_tabicl.py` and `amia_tabdpt.py` infer the model from the script name and do not accept `--model`.
 
-
-
----
-
-## Defenses
-
-Results are written to `{attack}/defense_hamp/report/` alongside a `defense_accuracy.csv` that reports accuracy and average confidence before and after the defense.
-
-For **TabFM / TabPFN defenses beyond HAMP**, see
-[run_defenses/README.md](run_defenses/README.md). It covers label
-k-anon, attention dropout, auto top-layer dropout, and high-risk guardrails, including the seeded defense workflow.
