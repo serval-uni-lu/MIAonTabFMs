@@ -178,6 +178,17 @@ START_PHASE=5 DATASETS=credit_rating TABFM_MODELS=tabpfn GPUS=0 ./run_all_experi
 
 If executable permissions complain, use `bash run_all_experiments_batch.sh` with the same environment variables.
 
+Phase 6 (high-risk label k-anon defenses) always applies the
+`--high-risk-nonmember-margin` push — see
+[run_defenses/README.md](run_defenses/README.md) for what the margin does.
+Override it (and its trigger threshold / fold count) with
+`HIGH_RISK_NONMEMBER_MARGIN`, `HIGH_RISK_NEAR_PERFECT_AUC`, and
+`HIGH_RISK_KFOLD_FOLDS` (defaults: `0.75`, `0.85`, `5`):
+
+```bash
+HIGH_RISK_NONMEMBER_MARGIN=0.5 HIGH_RISK_NEAR_PERFECT_AUC=0.9 START_PHASE=6 END_PHASE=6 ./run_all_experiments_batch.sh
+```
+
 
 ### Including TabArena datasets in batch
 
