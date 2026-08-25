@@ -16,6 +16,7 @@ set -u
 #   START_PHASE=5 END_PHASE=5 ./run_all_experiments_batch.sh  # run only Phase 5
 #   GPUS=0,1,2 CONTINUE_ON_ERROR=1 ./run_all_experiments_batch.sh
 #   GPUS="" ./run_all_experiments_batch.sh  # force CPU
+#   HIGH_RISK_NONMEMBER_MARGIN=0.5 HIGH_RISK_NEAR_PERFECT_AUC=0.9 START_PHASE=6 END_PHASE=6 ./run_all_experiments_batch.sh
 
 DATASETS="${DATASETS:-all}"
 SKIP_DATASETS="${SKIP_DATASETS:-aloi,purchases10,46956_seismic-bumps,lcld}"
@@ -34,6 +35,9 @@ LABEL_ALPHAS="${LABEL_ALPHAS:-0.0 0.3 0.5}"
 ATTN_DROPOUT_PS="${ATTN_DROPOUT_PS:-0.1 0.3 0.5 0.7 0.9}"
 # LAYER_DROPOUT_PS="${LAYER_DROPOUT_PS:-0.1 0.3 0.5}"
 DEFENSE_SEEDS="${DEFENSE_SEEDS:-1}"
+HIGH_RISK_NONMEMBER_MARGIN="${HIGH_RISK_NONMEMBER_MARGIN:-0.75}"
+HIGH_RISK_NEAR_PERFECT_AUC="${HIGH_RISK_NEAR_PERFECT_AUC:-0.85}"
+HIGH_RISK_KFOLD_FOLDS="${HIGH_RISK_KFOLD_FOLDS:-5}"
 
 failures=()
 _interrupted=0
@@ -282,6 +286,9 @@ echo "CONTINUE_ON_ERROR=${CONTINUE_ON_ERROR}"
 echo "START_PHASE=${START_PHASE}"
 echo "END_PHASE=${END_PHASE}"
 echo "MAX_JOBS=${MAX_JOBS}"
+echo "HIGH_RISK_NONMEMBER_MARGIN=${HIGH_RISK_NONMEMBER_MARGIN}"
+echo "HIGH_RISK_NEAR_PERFECT_AUC=${HIGH_RISK_NEAR_PERFECT_AUC}"
+echo "HIGH_RISK_KFOLD_FOLDS=${HIGH_RISK_KFOLD_FOLDS}"
 
 common=()
 batch_common_args common
@@ -454,6 +461,9 @@ for dataset in "${datasets[@]}"; do
         --layer-dropout-ps 0 \
         --high-risk-guardrail \
         --high-risk-fallback label_kanon \
+        --high-risk-nonmember-margin "$HIGH_RISK_NONMEMBER_MARGIN" \
+        --high-risk-near-perfect-auc "$HIGH_RISK_NEAR_PERFECT_AUC" \
+        --high-risk-kfold-folds "$HIGH_RISK_KFOLD_FOLDS" \
         --skip-existing \
         --attacks rmia amia \
         "${job_gpu_args[@]}"
