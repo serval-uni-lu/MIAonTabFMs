@@ -372,15 +372,35 @@ class HighRiskQueryFallbackWrapper:
         model,
         fallback_model,
         n_context: int,
-        threshold: float,
+        threshold: float | np.ndarray,
         probe_batch_size: int = 64,
         capture_backend: str = "tabpfn",
         thinking_rows: int | None = None,
+        generalization_threshold: float | None = None,
     ):
         self.model = model
         self.fallback_model = fallback_model
         self.n_context = int(n_context)
-        self.threshold = float(threshold)
+        # Scalar: one threshold for every query, always safe regardless of
+        # what X is. Array: per-row threshold, one value per row of a
+        # *specific* pool (e.g. a k-fold-calibrated threshold) -- only valid
+        # when predict_proba is fed that exact pool, in order, as a sequence
+        # of non-overlapping chunks starting from row 0. That's an explicit
+        # opt-in (pool_scoring_mode / reset_pool_cursor below), not inferred
+        # from shape: callers external to this wrapper batch predict_proba
+        # calls with their own chunk sizes for *any* input (e.g. a held-out
+        # accuracy set the array was never calibrated for), so array length
+        # can coincidentally "fit" a chunk of the wrong dataset -- inferring
+        # alignment from shape alone would silently mis-score it. Any call
+        # while pool_scoring_mode is off uses generalization_threshold.
+        self.threshold = (
+            np.asarray(threshold, dtype=float) if isinstance(threshold, np.ndarray) else float(threshold)
+        )
+        self.generalization_threshold = (
+            None if generalization_threshold is None else float(generalization_threshold)
+        )
+        self.pool_scoring_mode = False
+        self._pool_cursor = 0
         self.probe_batch_size = max(1, int(probe_batch_size))
         self.capture_backend = str(capture_backend).lower()
         self.thinking_rows = None if thinking_rows is None else max(0, int(thinking_rows))
@@ -470,8 +490,40 @@ class HighRiskQueryFallbackWrapper:
         risk = _row_max_risk_from_records(ctx.records, chunk)
         return probs, risk
 
+    def reset_pool_cursor(self) -> None:
+        """Call once, immediately before the first predict_proba of a fresh,
+        sequential, non-overlapping pass over the exact pool the per-row
+        threshold array was calibrated for. Required to (re-)enable array
+        mode; each predict_proba call while pool_scoring_mode is True
+        consumes the next slice of the array and advances the cursor."""
+        self._pool_cursor = 0
+
     def predict_proba(self, X: np.ndarray, **predict_kwargs) -> np.ndarray:
         X = np.asarray(X)
+        threshold_is_array = isinstance(self.threshold, np.ndarray) and self.pool_scoring_mode
+        if threshold_is_array:
+            if self._pool_cursor + len(X) > len(self.threshold):
+                raise ValueError(
+                    "Pool-scoring cursor overflow: "
+                    f"{self._pool_cursor} + {len(X)} > {len(self.threshold)}. "
+                    "pool_scoring_mode expects sequential, non-overlapping chunks of "
+                    "exactly the calibrated pool, in order, starting after reset_pool_cursor(). "
+                    "If X is not that pool, turn pool_scoring_mode off instead."
+                )
+            active_threshold = self.threshold[self._pool_cursor: self._pool_cursor + len(X)]
+        elif isinstance(self.threshold, np.ndarray):
+            # Array threshold but pool-scoring mode is off (e.g. this call is
+            # scoring a held-out accuracy set, not the calibrated pool) --
+            # only a single scalar can be valid for arbitrary input.
+            if self.generalization_threshold is None:
+                raise ValueError(
+                    "Threshold is a per-row array, pool_scoring_mode is off, and no "
+                    "generalization_threshold was provided -- cannot score this input."
+                )
+            active_threshold = self.generalization_threshold
+        else:
+            active_threshold = self.threshold
+
         probs_batches = []
         risk_batches = []
         mask_batches = []
@@ -490,17 +542,14 @@ class HighRiskQueryFallbackWrapper:
         for start in range(0, len(X), self.probe_batch_size):
             xb = X[start: start + self.probe_batch_size]
 
-            # Snapshot RNG state before the probe so the clean-model call sees the
-            # same random state as if the probe never ran (the probe consumes GPU
-            # random numbers, e.g. from inference-time stochasticity, which would
-            # otherwise shift predictions away from the undefended baseline).
             if _torch_available:
                 cpu_rng = torch.get_rng_state()
                 cuda_rng = torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
 
             _, risk = self._probe_chunk(xb, predict_kwargs=predict_kwargs)
 
-            high_risk = risk >= self.threshold
+            threshold_batch = active_threshold[start: start + len(xb)] if threshold_is_array else active_threshold
+            high_risk = risk >= threshold_batch
 
             if high_risk.all():
                 # All queries need the fallback — skip the clean model call entirely.
@@ -524,6 +573,9 @@ class HighRiskQueryFallbackWrapper:
             probs_batches.append(probs)
             risk_batches.append(risk)
             mask_batches.append(high_risk)
+
+        if threshold_is_array:
+            self._pool_cursor += len(X)
 
         self.last_risk_scores_ = np.concatenate(risk_batches)
         self.last_high_risk_mask_ = np.concatenate(mask_batches)

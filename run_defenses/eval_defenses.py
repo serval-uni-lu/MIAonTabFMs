@@ -56,6 +56,23 @@ def _cleanup_runtime(logger, scope_name: str) -> None:
         logger.warning("[%s] CUDA cleanup skipped: %s", scope_name, exc)
 
 
+def _achievable_auc(auc):
+    """Attack strength available to a rational adversary, sign-invariant.
+
+    Raw ROC AUC is not symmetrized: an AUC of 0.02 carries exactly as much
+    membership signal as an AUC of 0.98, since an adversary can simply flip
+    their decision rule to recover it. The high-risk label k-anon fallback
+    routinely drives raw AUC toward 0 rather than toward the chance level
+    0.5 (it over-suppresses rather than converging to non-member noise),
+    which looks like strong protection unless the AUC is symmetrized first.
+    Mirrors results_visualizations/defenses_viz.py's _achievable_auc().
+    """
+    if auc is None or auc == "":
+        return None
+    auc = float(auc)
+    return max(auc, 1.0 - auc)
+
+
 # ── signal helpers ────────────────────────────────────────────────────────────
 
 def _model_classes(model) -> np.ndarray:
@@ -262,7 +279,15 @@ def _compute_defended_signals(wrap_fn, models_list, X_pool, y_pool, X_pop, y_pop
             logger.info("[%s] Reusing checkpointed audit signals for model %d / %d",
                         defense_name, i + 1, n)
         else:
+            # X_pool is the exact pool a k-fold-calibrated per-row threshold
+            # (if any) was built for, scored here in one sequential pass from
+            # row 0 -- enable array mode for it specifically.
+            if hasattr(dm, "pool_scoring_mode"):
+                dm.reset_pool_cursor()
+                dm.pool_scoring_mode = True
             signals[:, i] = _compute_signal(dm, X_pool, y_pool, batch_size)
+            if hasattr(dm, "pool_scoring_mode"):
+                dm.pool_scoring_mode = False
             done[i] = True
             if checkpoint_dir is not None:
                 _save_signal_checkpoint(checkpoint_dir, signals, signals_pop, done, done_pop)
@@ -270,6 +295,9 @@ def _compute_defended_signals(wrap_fn, models_list, X_pool, y_pool, X_pop, y_pop
             logger.info("[%s] Reusing checkpointed population signals for model %d / %d",
                         defense_name, i + 1, n)
         else:
+            # X_pop is a separate reference set, not part of the calibrated
+            # pool's fold assignment -- must use the scalar generalization
+            # threshold (pool_scoring_mode stays off, its default).
             signals_pop[:, i] = _compute_signal(dm, X_pop, y_pop, batch_size)
             done_pop[i] = True
             if checkpoint_dir is not None:
@@ -364,6 +392,23 @@ def _fast_skip_phase6_highrisk_label_kanon(args,
         return False
     safe_dirs = [p.name for p in Path(out_dir).iterdir() if p.is_dir()]
 
+    # Must match the *requested* defense name exactly, margin/anonymize-values
+    # suffix included -- this mirrors _high_risk_label_kanon_component's own
+    # naming (by request, not by whether calibration ends up pushing), which
+    # is derivable purely from args, before any calibration/model loading.
+    # Without this, a bare (margin=0) directory from a previous run without
+    # --high-risk-nonmember-margin would wrongly satisfy a preflight check for
+    # a *different*, margin-requesting invocation, and the margin variant
+    # would never actually get computed.
+    _margin_pct = int(round(args.high_risk_nonmember_margin * 100))
+    _calib_tag = "" if _margin_pct == 0 else f"m{_margin_pct}"
+    name_suffix = (
+        f"_v{_calib_tag}" if args.high_risk_anonymize_values
+        else f"_{_calib_tag}" if _calib_tag
+        else ""
+    )
+    name_suffix_re = re.escape(name_suffix)
+
     for k in args.label_kanon_ks:
         if k <= 1:
             continue
@@ -374,11 +419,11 @@ def _fast_skip_phase6_highrisk_label_kanon(args,
             if alpha > 0.0:
                 pct = int(round(alpha * 100))
                 pattern = re.compile(
-                    rf"^highrisk_label_kanon_k{k}(?:_eff\\d+)?_a{pct}$"
+                    rf"^highrisk_label_kanon_k{k}(?:_eff\\d+)?_a{pct}{name_suffix_re}$"
                 )
             else:
                 pattern = re.compile(
-                    rf"^highrisk_label_kanon_k{k}(?:_eff\\d+)?$"
+                    rf"^highrisk_label_kanon_k{k}(?:_eff\\d+)?{name_suffix_re}$"
                 )
 
             matches = [name for name in safe_dirs if pattern.match(name)]
@@ -684,47 +729,132 @@ def _describe_attn_dropout_layers(layer_spec, n_layers: int | None) -> tuple[obj
     )
 
 
-def _calibrate_high_risk_threshold(summary_csv: str,
-                                   mem: np.ndarray,
-                                   score_name: str,
-                                   threshold: float | None,
-                                   logger) -> tuple[float, str]:
-    """Calibrate a high-risk query threshold from baseline AMIA summary."""
+def _pushed_threshold(cal_mem: np.ndarray, cal_risk: np.ndarray, nonmember_margin: float,
+                       near_perfect_auc: float) -> tuple[float, bool]:
+    """min-known-member threshold over cal_risk, pushed by a fixed margin when the
+    raw risk score already achieves near-perfect member/non-member separation.
+
+    Separation is measured directly as achievable AUC (max(auc, 1-auc) of the raw
+    risk score as an attack signal against cal_mem) rather than via the selected-
+    rate proxy used previously: under the min-known-member rule, selected rate can
+    look separated for reasons other than genuine near-perfect separation (e.g. a
+    skewed member fraction), whereas achievable AUC measures separability directly
+    and is exactly the quantity the push is trying to react to.
+    """
+    base_threshold = float(np.min(cal_risk[cal_mem]))
+    if nonmember_margin <= 0.0:
+        return base_threshold, False
+    finite = np.isfinite(cal_risk)
+    from amia_tabpfn import compute_roc
+    _, _, auc = compute_roc(cal_risk[finite], cal_mem[finite].astype(int))
+    achievable = _achievable_auc(auc)
+    if achievable is None or achievable < near_perfect_auc:
+        return base_threshold, False
+    cal_noncal_risk = cal_risk[~cal_mem]
+    if len(cal_noncal_risk) == 0:
+        return base_threshold, False
+    nonmember_threshold = float(np.quantile(cal_noncal_risk, 1.0 - nonmember_margin))
+    adjusted = min(base_threshold, nonmember_threshold)
+    return adjusted, adjusted < base_threshold
+
+
+def _calibrate_high_risk_threshold_kfold(
+    baseline_summary_csv: str,
+    mem: np.ndarray,
+    score_name: str,
+    logger,
+    n_folds: int = 5,
+    seed: int = 0,
+    nonmember_margin: float = 0.0,
+    near_perfect_auc: float = 0.95,
+) -> tuple[np.ndarray, float, str, bool, float | None]:
+    """Leave-fold-out threshold calibration, with an optional fixed non-member push.
+
+    The rule is: threshold = minimum known-member risk score (always catches
+    every known member). If nonmember_margin > 0 and that threshold's raw
+    risk score already achieves near-perfect member/non-member separation
+    (achievable AUC -- max(auc, 1-auc), see _achievable_auc -- at least
+    near_perfect_auc), the threshold is additionally pushed down so it also
+    catches at least nonmember_margin of the non-members; below that
+    separation level, the plain member-minimum threshold is kept as-is. This
+    is computed per fold (see below) rather than globally, so a row's own
+    score never calibrates its own bar.
+
+    For each fold, the threshold is set using the *other* folds' data only.
+    Returns (threshold_per_row, generalization_threshold, note, pushed, achievable_auc):
+      threshold_per_row: per-row array aligned to mem's row order, for scoring
+          the exact audit pool this was calibrated on (RMIA/AMIA) -- a query's
+          defense decision depends on which fold it falls into.
+      generalization_threshold: a single scalar, calibrated the same way but
+          using *all* members (no fold held out), for scoring any other input
+          the pool's fold assignment doesn't cover -- e.g. the held-out
+          accuracy set. There's no leakage concern here since accuracy scoring
+          isn't an attack metric being reported, so no row needs to be
+          excluded from its own calibration.
+      pushed: whether the margin push actually fired for generalization_threshold
+          (all members, no fold held out) -- the representative signal callers
+          use to decide whether a requested-but-unfired push can be answered
+          by copying an already-computed bare (margin=0) run instead of
+          recomputing.
+      achievable_auc: the achievable AUC generalization_threshold's push
+          decision was based on (None when nonmember_margin is 0.0) --
+          reported for bookkeeping/logging, not used to gate anything itself
+          (each fold's own out-of-fold achievable AUC gates that fold, via
+          _pushed_threshold).
+
+    This automatically collapses to a plain leave-fold-out threshold for
+    models whose out-of-fold achievable AUC never reaches near_perfect_auc
+    (e.g. TabPFN / Real TabPFN), and applies the fixed push only where it
+    does (e.g. TabICL / TabDPT) -- no per-model branching required.
+    """
     import pandas as pd
 
-    if not os.path.exists(summary_csv):
-        raise FileNotFoundError(
-            f"Cannot calibrate high-risk dropout because baseline AMIA summary is missing: {summary_csv}"
-        )
-    df = pd.read_csv(summary_csv)
-    score_col = _amia_summary_col(df, score_name)
+    if not os.path.exists(baseline_summary_csv):
+        raise FileNotFoundError(f"Missing baseline AMIA summary: {baseline_summary_csv}")
+
+    base_df = pd.read_csv(baseline_summary_csv)
+    score_col = _amia_summary_col(base_df, score_name)
     if score_col is None:
         raise ValueError(f"Baseline AMIA summary is missing score column {score_name!r}.")
-    scores = df[score_col].to_numpy(dtype=float)
-    finite = np.isfinite(scores)
-    if len(scores) != len(mem):
-        raise ValueError(
-            "Baseline AMIA summary row count does not match membership labels: "
-            f"{len(scores)} vs {len(mem)}."
-        )
-    if threshold is not None:
-        return float(threshold), "explicit"
+    risk = base_df[score_col].to_numpy(dtype=float)
+    if len(risk) != len(mem):
+        raise ValueError("Baseline AMIA summary row count does not match membership labels.")
 
-    # Default policy: catch all known members in the baseline calibration set.
-    # At runtime true membership is unknown; the guardrail only compares a
-    # query's pre-defense AMIA risk score against this fixed threshold.
-    cal = scores[mem & finite]
-    note = "member_min"
-    if len(cal) == 0:
-        raise ValueError("No finite member calibration scores for high-risk threshold.")
-    value = float(np.min(cal))
-    logger.info(
-        "High-risk threshold calibrated on %s: %s %.6g",
-        score_col,
-        note,
-        value,
+    rng = np.random.default_rng(seed)
+    fold = np.full(len(mem), -1, dtype=int)
+    for cls in (True, False):
+        idx = np.flatnonzero(mem == cls)
+        rng.shuffle(idx)
+        for fi, chunk in enumerate(np.array_split(idx, n_folds)):
+            fold[chunk] = fi
+
+    threshold_per_row = np.empty(len(mem), dtype=float)
+    fold_notes = []
+
+    for fi in range(n_folds):
+        out_of_fold = fold != fi
+        chosen_threshold, pushed = _pushed_threshold(
+            mem[out_of_fold], risk[out_of_fold], nonmember_margin, near_perfect_auc,
+        )
+        threshold_per_row[fold == fi] = chosen_threshold
+        fold_notes.append(f"fold{fi}:thr={chosen_threshold:.6g}" + (",pushed" if pushed else ""))
+
+    generalization_threshold, gen_pushed = _pushed_threshold(mem, risk, nonmember_margin, near_perfect_auc)
+
+    achievable_auc = None
+    if nonmember_margin > 0.0:
+        finite = np.isfinite(risk)
+        if finite.any():
+            from amia_tabpfn import compute_roc
+            _, _, auc = compute_roc(risk[finite], mem[finite].astype(int))
+            achievable_auc = _achievable_auc(auc)
+
+    note = (
+        "kfold_threshold(" + "; ".join(fold_notes) + f"; generalization:thr={generalization_threshold:.6g}"
+        + (",pushed" if gen_pushed else "") + ")"
     )
-    return value, note
+    logger.info("K-fold high-risk threshold calibration on %s: %s", score_col, note)
+    return threshold_per_row, generalization_threshold, note, gen_pushed, achievable_auc
 
 
 def _write_adaptive_amia_summary(
@@ -1078,10 +1208,18 @@ def _run_one_defense(
                 out_cache=os.path.join(def_sig_dir, f"attn_signals_{target_idx}.npz"),
                 high_risk=scalars["fallback_mask"],
             )
+            _threshold_for_log = adaptive_meta["threshold"]
+            if isinstance(_threshold_for_log, np.ndarray):
+                threshold_repr = (
+                    f"per-row[min={_threshold_for_log.min():.6g}, "
+                    f"mean={_threshold_for_log.mean():.6g}, max={_threshold_for_log.max():.6g}]"
+                )
+            else:
+                threshold_repr = f"{_threshold_for_log:.6g}"
             def_logger.info(
-                "Adaptive high-risk AMIA: fallback=%s threshold=%.6g applied=%d/%d (%.4f)",
+                "Adaptive high-risk AMIA: fallback=%s threshold=%s applied=%d/%d (%.4f)",
                 fallback_name,
-                adaptive_meta["threshold"],
+                threshold_repr,
                 scalars["fallback_count"],
                 len(mem),
                 scalars["fallback_rate"],
@@ -1184,6 +1322,14 @@ def main():
                             "Default 0.0 means pure label k-anon centroiding; "
                             "0.8/0.9 are softer utility-preserving variants."
                         ))
+    parser.add_argument("--label-kanon-anonymize-values", action="store_true",
+                        help=(
+                            "Also anonymize attention Values (not just Keys) for the plain "
+                            "(non-high-risk) label k-anon defense, using the same k/alpha. See "
+                            "--high-risk-anonymize-values for the same option on the high-risk "
+                            "fallback. Affected defense names get a '_v' suffix, "
+                            "e.g. label_kanon_k5_v."
+                        ))
     parser.add_argument("--knn-ks",             type=int,   nargs="+", default=[],
                         help="k values for kNN key smoothing; empty disables this defense.")
     parser.add_argument("--knn-alphas",         type=float, nargs="+", default=[0.7],
@@ -1219,8 +1365,47 @@ def main():
     parser.add_argument("--high-risk-score", type=str, default="row_max",
                         choices=["row_max", "row_ent", "rmia_score"],
                         help="Baseline AMIA summary column used to flag high-risk queries.")
-    parser.add_argument("--high-risk-threshold", type=float, default=None,
-                        help="Explicit high-risk threshold. Default is the minimum known-member AMIA risk in the calibration set.")
+    parser.add_argument("--high-risk-nonmember-margin", type=float, default=0.0,
+                        help=(
+                            "If >0 and the out-of-fold achievable AUC (max(auc, 1-auc), see "
+                            "_achievable_auc) of the default (min-known-member) threshold's raw "
+                            "risk score reaches --high-risk-near-perfect-auc (i.e. member/non-"
+                            "member scores are near-perfectly separated), push the threshold "
+                            "down so it additionally catches at least this fraction of non-"
+                            "members (e.g. 0.10 = 10%%). Does not change behavior when achievable "
+                            "AUC stays below that level, or when this is left at 0.0 (default: "
+                            "off, no behavior change). Threshold calibration is always leave-"
+                            "fold-out (see --high-risk-kfold-folds) for every model: for each "
+                            "fold, the threshold is computed from the other folds only, so no row "
+                            "ever calibrates its own bar. Affected defense names get a "
+                            "'_m<margin*100>' suffix so results are never overwritten, e.g. "
+                            "highrisk_label_kanon_k3_m10; margin=0.0 keeps the bare name."
+                        ))
+    parser.add_argument("--high-risk-near-perfect-auc", type=float, default=0.95,
+                        help=(
+                            "Out-of-fold achievable-AUC threshold (see _achievable_auc) that "
+                            "triggers --high-risk-nonmember-margin: the raw risk score is "
+                            "treated as near-perfectly separated once its achievable AUC on the "
+                            "out-of-fold calibration data reaches this value."
+                        ))
+    parser.add_argument("--high-risk-kfold-folds", type=int, default=5,
+                        help=(
+                            "Number of leave-fold-out folds for high-risk threshold calibration. "
+                            "Always used (for every model) -- there is no plain, non-fold-"
+                            "excluded calibration path anymore."
+                        ))
+    parser.add_argument("--high-risk-anonymize-values", action="store_true",
+                        help=(
+                            "Only affects --high-risk-fallback label_kanon: also anonymize "
+                            "attention Values (not just Keys) in the fallback's k-group blend, "
+                            "using the same k/alpha. Key-only anonymization flattens attention "
+                            "weights within a k-group but still pulls in each row's untouched "
+                            "original value, so the true payload survives; this additionally "
+                            "blends the value itself toward the group centroid. Affected defense "
+                            "names get a '_v' prefix on the calibration tag (e.g. '_v' at margin=0, "
+                            "'_vm50' at margin=0.50) so results are never overwritten, e.g. "
+                            "highrisk_label_kanon_k3_v, highrisk_label_kanon_k3_vm50."
+                        ))
     parser.add_argument("--high-risk-probe-batch-size", type=int, default=None,
                         help="Probe batch size for live high-risk dropout; defaults to --batch-size.")
     parser.add_argument("--auto-dropout-top-layers", type=int, default=6,
@@ -1454,14 +1639,46 @@ def main():
     logger.info("Detected thinking_rows=%d for model=%s", thinking_rows, args.model.lower())
     high_risk_threshold = None
     high_risk_note = None
+    high_risk_generalization_threshold = None
+    high_risk_pushed = False
+    high_risk_achievable_auc = None
     if high_risk_enabled:
-        high_risk_threshold, high_risk_note = _calibrate_high_risk_threshold(
+        (
+            high_risk_threshold,
+            high_risk_generalization_threshold,
+            high_risk_note,
+            high_risk_pushed,
+            high_risk_achievable_auc,
+        ) = _calibrate_high_risk_threshold_kfold(
             os.path.join(amia_log, "report", "exp", "attention_summary.csv"),
             mem,
             args.high_risk_score,
-            args.high_risk_threshold,
             logger,
+            n_folds=args.high_risk_kfold_folds,
+            nonmember_margin=args.high_risk_nonmember_margin,
+            near_perfect_auc=args.high_risk_near_perfect_auc,
         )
+    # Calibration is always leave-fold-out now (every model), so it no longer
+    # needs its own name tag -- only the *requested* margin does, regardless
+    # of whether calibration ended up actually pushing the threshold for this
+    # dataset/model. Naming on request (not on success) keeps the folder name
+    # stable and predictable before calibration even runs, and means a run
+    # that silently didn't push never collides with -- or gets mistaken for
+    # -- the bare (margin=0) run. margin=0 keeps the bare name; any other
+    # margin gets a "_m<pct>" tag, e.g. "_m50".
+    high_risk_margin_requested = high_risk_enabled and args.high_risk_nonmember_margin > 0.0
+    _margin_pct = int(round(args.high_risk_nonmember_margin * 100))
+    _calib_tag = "" if _margin_pct == 0 else f"m{_margin_pct}"
+    high_risk_name_suffix = (
+        f"_v{_calib_tag}" if (high_risk_enabled and args.high_risk_anonymize_values)
+        else f"_{_calib_tag}" if (high_risk_enabled and _calib_tag)
+        else ""
+    )
+    # The name this same config would have with margin=0 (push never
+    # requested) -- when a requested push doesn't fire, results are provably
+    # identical to that bare run, so they can be copied from it instead of
+    # being recomputed from scratch.
+    high_risk_bare_suffix = "_v" if (high_risk_enabled and args.high_risk_anonymize_values) else ""
 
     defense_configs = []
     kanon_attention_mode = (
@@ -1489,12 +1706,15 @@ def main():
     def _label_kanon_component(
         k: int,
         alpha: float = 0.0,
+        anonymize_values: bool = False,
     ):
         k_eff = _effective_k(k, n_context, args.kanon_max_k_ratio)
         base = f"label_kanon_k{k}" if k_eff == k else f"label_kanon_k{k}_eff{k_eff}"
         parts = [base]
         if alpha > 0.0:
             parts.append(f"a{int(round(alpha * 100))}")
+        if anonymize_values:
+            parts.append("v")
         name = "_".join(parts)
 
         def _wrap(
@@ -1503,6 +1723,7 @@ def main():
             _k=k_eff,
             _tr=thinking_rows,
             _alpha=alpha,
+            _av=anonymize_values,
         ):
             membership_mask = auditing_membership[idx].astype(bool)
             return KAnonTabFMWrapper(
@@ -1511,6 +1732,7 @@ def main():
                 thinking_rows=_tr,
                 context_labels=y_pool[membership_mask],
                 retain_alpha=_alpha,
+                anonymize_values=_av,
                 context_size=_model_context_size(idx),
                 attention_mode=kanon_attention_mode,
             )
@@ -1618,8 +1840,10 @@ def main():
     ):
         if high_risk_threshold is None or high_risk_note is None:
             raise RuntimeError("High-risk threshold was not calibrated.")
-        fallback_name, fallback_wrap = _label_kanon_component(k, alpha)
-        name = f"highrisk_{fallback_name}"
+        fallback_name, fallback_wrap = _label_kanon_component(
+            k, alpha, anonymize_values=args.high_risk_anonymize_values,
+        )
+        name = f"highrisk_{fallback_name}{high_risk_name_suffix}"
 
         def _wrap(m, idx):
             return HighRiskQueryFallbackWrapper(
@@ -1630,6 +1854,7 @@ def main():
                 probe_batch_size=args.high_risk_probe_batch_size or args.batch_size,
                 capture_backend=args.model.lower(),
                 thinking_rows=thinking_rows,
+                generalization_threshold=high_risk_generalization_threshold,
             )
 
         _wrap._adaptive_amia = {
@@ -1637,6 +1862,19 @@ def main():
             "fallback_wrap": fallback_wrap,
             "score_name": args.high_risk_score,
             "threshold": high_risk_threshold,
+        }
+        # Lets the run loop know whether a requested non-member-margin push
+        # actually fired, and -- when it didn't -- which unsuffixed ("bare")
+        # defense name is guaranteed to produce identical results, so those
+        # results can be copied instead of recomputed.
+        _wrap._high_risk_calibration = {
+            "pushed": high_risk_pushed,
+            "requested_margin": args.high_risk_nonmember_margin if high_risk_margin_requested else None,
+            "near_perfect_auc_gate": args.high_risk_near_perfect_auc if high_risk_margin_requested else None,
+            "achievable_auc": high_risk_achievable_auc,
+            "threshold": high_risk_threshold,
+            "note": high_risk_note,
+            "bare_name": f"highrisk_{fallback_name}{high_risk_bare_suffix}",
         }
         return name, _wrap
 
@@ -1670,7 +1908,11 @@ def main():
                     _high_risk_label_kanon_component(k, alpha)
                 )
             else:
-                defense_configs.append(_label_kanon_component(k, alpha))
+                defense_configs.append(
+                    _label_kanon_component(
+                        k, alpha, anonymize_values=args.label_kanon_anonymize_values,
+                    )
+                )
     for knn_k in args.knn_ks:
         if knn_k <= 1:
             continue
@@ -1695,7 +1937,9 @@ def main():
         kanon_choices = [None]
         kanon_choices += [_plain_kanon_component(k) for k in args.kanon_ks if k > 1]
         kanon_choices += [
-            _label_kanon_component(k, alpha)
+            _label_kanon_component(
+                k, alpha, anonymize_values=args.label_kanon_anonymize_values,
+            )
             for k in args.label_kanon_ks
             if k > 1
             for alpha in args.label_kanon_alphas
@@ -1787,6 +2031,47 @@ def main():
         logger.info("\n" + "=" * 70)
         logger.info("Defense: %s", defense_name)
         defense_logger.info("Defense: %s", defense_name)
+
+        calib = getattr(wrap_fn, "_high_risk_calibration", None)
+
+        def _tag_with_calibration(row_dict: dict, copied_from: str | None) -> dict:
+            if calib is None:
+                return row_dict
+            row_dict["high_risk_pushed"] = calib["pushed"]
+            row_dict["high_risk_requested_margin"] = calib.get("requested_margin")
+            row_dict["high_risk_achievable_auc"] = calib.get("achievable_auc")
+            row_dict["high_risk_near_perfect_auc_gate"] = calib.get("near_perfect_auc_gate")
+            row_dict["high_risk_threshold"] = calib.get("threshold")
+            row_dict["high_risk_note"] = calib.get("note")
+            row_dict["high_risk_copied_from"] = copied_from
+            return row_dict
+
+        if calib is not None and not calib["pushed"] and calib.get("requested_margin"):
+            bare_name = calib["bare_name"]
+            bare_row = next(
+                (r for r in results if r.get("defense") == bare_name and r.get("seed") == args.seed),
+                None,
+            )
+            if bare_row is None:
+                bare_row = _load_existing_defense_result(
+                    bare_name, out_dir, run_rmia_flag, run_amia_flag, seed=args.seed,
+                )
+            if bare_row is not None:
+                msg = (
+                    f"[{defense_name}] Requested non-member margin "
+                    f"{calib['requested_margin']:.2f} did not fire (achievable AUC="
+                    f"{calib['achievable_auc']}, gate={calib['near_perfect_auc_gate']}); "
+                    f"copying results from '{bare_name}' instead of recomputing."
+                )
+                logger.info(msg)
+                defense_logger.info(msg)
+                row = _tag_with_calibration(
+                    {**bare_row, "defense": defense_name, "seed": args.seed},
+                    copied_from=bare_name,
+                )
+                results.append(row)
+                continue
+
         if skip_existing:
             existing = _load_existing_defense_result(
                 defense_name,
@@ -1802,7 +2087,7 @@ def main():
                     "[%s] Existing artifacts found; skipping because --skip-existing was set.",
                     defense_name,
                 )
-                results.append(existing)
+                results.append(_tag_with_calibration(existing, copied_from=None))
                 continue
 
         row = _run_one_defense(
@@ -1817,37 +2102,60 @@ def main():
             seed=args.seed,
             skip_existing=skip_existing,
         )
-        results.append(row)
+        results.append(_tag_with_calibration(row, copied_from=None))
+
+    # ── symmetrized (sign-invariant) AUC: what a rational adversary can
+    # actually achieve, since raw AUC can be pushed toward 0 by over-
+    # suppression without the leak going away (see _achievable_auc). ────────
+    base["rmia_auc_achv"] = _achievable_auc(base.get("rmia_auc"))
+    base["amia_row_max_auc_achv"] = _achievable_auc(base.get("amia_row_max_auc"))
+    for r in results:
+        r["rmia_auc_achv"] = _achievable_auc(r.get("rmia_auc"))
+        r["amia_row_max_auc_achv"] = _achievable_auc(r.get("amia_row_max_auc"))
 
     # ── summary table ─────────────────────────────────────────────────────────
     base_rmia = base.get("rmia_auc") or 0.5
     base_amia = base.get("amia_row_max_auc") or 0.5
     base_acc  = base.get("accuracy") or 1.0
+    base_rmia_achv = base.get("rmia_auc_achv") or 0.5
+    base_amia_achv = base.get("amia_row_max_auc_achv") or 0.5
 
-    def _fmt_row(r, base_rmia, base_amia, base_acc, col_w):
+    def _fmt_row(r, base_rmia, base_amia, base_acc, base_rmia_achv, base_amia_achv, col_w):
         t  = f"{r['time_s']:.0f}s"
         ra = (f"{r['rmia_auc']:.4f}  (Δ {r['rmia_auc'] - base_rmia:+.4f})"
               if r["rmia_auc"] is not None else "-")
         aa = (f"{r['amia_row_max_auc']:.4f}  (Δ {r['amia_row_max_auc'] - base_amia:+.4f})"
               if r["amia_row_max_auc"] is not None else "-")
+        ra_achv = (f"{r['rmia_auc_achv']:.4f}  (Δ {base_rmia_achv - r['rmia_auc_achv']:+.4f})"
+                   if r["rmia_auc_achv"] is not None else "-")
+        aa_achv = (f"{r['amia_row_max_auc_achv']:.4f}  (Δ {base_amia_achv - r['amia_row_max_auc_achv']:+.4f})"
+                   if r["amia_row_max_auc_achv"] is not None else "-")
         ac = (f"{r['accuracy']:.4f}  (Δ {r['accuracy'] - base_acc:+.4f})"
               if r["accuracy"] is not None else "-")
-        return f"{r['defense']:<{col_w}} {t:>6}  {ra:>24}  {aa:>24}  {ac:>18}"
+        return (f"{r['defense']:<{col_w}} {t:>6}  {ra:>24}  {aa:>24}  "
+                f"{ra_achv:>24}  {aa_achv:>24}  {ac:>18}")
 
     col_w = 32
-    sep  = "=" * 100
-    sep2 = "-" * 100
+    sep  = "=" * 150
+    sep2 = "-" * 150
     hdr  = (
         f"{'Defense':<{col_w}} {'Time':>6}  "
-        f"{'RMIA AUC':>24}  {'AMIA row_max AUC':>24}  {'Accuracy':>18}"
+        f"{'RMIA AUC':>24}  {'AMIA row_max AUC':>24}  "
+        f"{'RMIA achievable AUC':>24}  {'AMIA achievable AUC':>24}  {'Accuracy':>18}"
     )
     bra = f"{base['rmia_auc']:.4f}" if base["rmia_auc"] is not None else "-"
     baa = f"{base['amia_row_max_auc']:.4f}" if base["amia_row_max_auc"] is not None else "-"
     bac = f"{base['accuracy']:.4f}" if base["accuracy"] is not None else "-"
+    bra_achv = f"{base['rmia_auc_achv']:.4f}" if base["rmia_auc_achv"] is not None else "-"
+    baa_achv = f"{base['amia_row_max_auc_achv']:.4f}" if base["amia_row_max_auc_achv"] is not None else "-"
     base_row = (
-        f"{'no_defense (baseline)':<{col_w}} {'':>6}  {bra:>24}  {baa:>24}  {bac:>18}"
+        f"{'no_defense (baseline)':<{col_w}} {'':>6}  {bra:>24}  {baa:>24}  "
+        f"{bra_achv:>24}  {baa_achv:>24}  {bac:>18}"
     )
-    result_rows = [_fmt_row(r, base_rmia, base_amia, base_acc, col_w) for r in results]
+    result_rows = [
+        _fmt_row(r, base_rmia, base_amia, base_acc, base_rmia_achv, base_amia_achv, col_w)
+        for r in results
+    ]
 
     table_lines = [sep, hdr, sep2, base_row, sep2, *result_rows, sep]
     table_str = "\n".join(table_lines)
@@ -1858,7 +2166,13 @@ def main():
     fieldnames = [
         "seed", "defense", "time_s",
         "rmia_auc", "amia_row_max_auc", "amia_row_ent_auc", "amia_row_max_d",
+        "rmia_auc_achv", "amia_row_max_auc_achv",
         "accuracy",
+        # High-risk non-member-margin push bookkeeping (blank/None for
+        # non-highrisk defenses and for the no_defense baseline).
+        "high_risk_pushed", "high_risk_requested_margin", "high_risk_achievable_auc",
+        "high_risk_near_perfect_auc_gate", "high_risk_threshold", "high_risk_note",
+        "high_risk_copied_from",
     ]
     # Load existing rows keyed by seed + defense name.
     existing: dict[tuple[str, str], dict] = {}
