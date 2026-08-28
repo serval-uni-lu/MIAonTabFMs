@@ -3,7 +3,6 @@
 Usage examples:
   python run_batch.py --attack rmia --datasets all --models all --mode train
   python run_batch.py --attack lira --datasets all --models lightgbm,rf
-  python run_batch.py --attack qmia --dataset purchases10 --model mlp
   python run_batch.py --attack rmia --models lightgbm --proxy-models tabpfn,rf
   python run_batch.py --attack rmia --gpus 0,1 --mode train
 """
@@ -22,7 +21,7 @@ from typing import List, Optional
 import pandas as pd
 
 SUPPORTED_MODELS = ["rf", "lightgbm", "tabpfn", "real-tabpfn", "tabicl", "tabdpt", "tabnet", "mlp"]
-SUPPORTED_ATTACKS = ["rmia", "lira", "loss", "population", "qmia"]
+SUPPORTED_ATTACKS = ["rmia", "lira", "loss", "population"]
 SCRIPT_DIR = Path(__file__).resolve().parent
 TABPFN_MAX_SAMPLES = 50_000
 TABPFN_MAX_FEATURES = 2_000
@@ -32,7 +31,7 @@ DATA_DIR_CANDIDATES = [
     Path("data/original"),
     Path("data/data_tabarena"),
 ]
-DEFAULT_MODES = {"rmia": "train", "lira": "load", "loss": None, "population": "load", "qmia": "load"}
+DEFAULT_MODES = {"rmia": "train", "lira": "load", "loss": None, "population": "load"}
 
 
 def parse_csv_arg(raw: str) -> List[str]:
@@ -203,12 +202,6 @@ def run_already_completed(
             return False
         return _report_done(base / "attack_p" / "report")
 
-    if attack == "qmia":
-        sig_dir = base / "quantile_reg" / "signals"
-        if _all_exist(sig_dir, "rmia_signals.npy", "rmia_signals_pop.npy"):
-            return True
-        return _report_done(base / "quantile_reg" / "report")
-
     return False
 
 
@@ -221,7 +214,6 @@ ATTACK_SCRIPTS = {
     "lira": "lira.py",
     "loss": "loss.py",
     "population": "population_attack.py",
-    "qmia": "quantile_regression.py",
 }
 
 
@@ -236,8 +228,6 @@ def run_one(
     online: bool = False,
     gpu: Optional[str] = None,
     proxy_model: Optional[str] = None,
-    defense: str = "none",
-    max_audit_samples: Optional[int] = None,
     seeds: Optional[str] = None,
     seed: Optional[int] = None,
 ) -> int:
@@ -261,10 +251,6 @@ def run_one(
         cmd += ["--seeds", seeds]
     if seed is not None and attack != "rmia":
         cmd += ["--seed", str(seed)]
-    if defense != "none":
-        cmd += ["--defense", defense]
-    if max_audit_samples is not None and attack == "qmia":
-        cmd += ["--max-audit-samples", str(max_audit_samples)]
 
     label = f"[RUN] attack={attack} dataset={dataset_name} model={model_name}"
     if mode:
@@ -310,24 +296,18 @@ def main():
                         help="Print commands without executing.")
     parser.add_argument("--online", action="store_true",
                         help="Online mode (rmia/lira only).")
-    parser.add_argument("--defense", type=str, default="none", choices=["none", "hamp"],
-                        help="Test-time defense (rmia/lira/loss/population/qmia).")
     parser.add_argument("--proxy-models", type=str, default=None,
                         help="Comma-separated proxy model names or 'all' (rmia only).")
     parser.add_argument("--gpus", type=str, default=None,
                         help="Comma-separated GPU IDs for parallel execution (rmia only).")
     parser.add_argument("--seeds", type=str, default=None,
                         help="Comma-separated seeds for repeated default RMIA runs, e.g. 1,2,3,4,5.")
-    parser.add_argument("--max-audit-samples", type=int, default=None,
-                        help="Cap audit dataset size (qmia only).")
     parser.add_argument("--skip-config", action="store_true",
                         help="Skip rewriting the YAML config if it already exists.")
 
     args = parser.parse_args()
     attack = args.attack
     mode = args.mode if args.mode is not None else DEFAULT_MODES[attack]
-    if attack == "rmia" and args.defense != "none" and args.seeds is None:
-        args.seeds = "1"
 
     # --- Resolve datasets ---
     dataset_items = parse_csv_arg(args.datasets)
@@ -476,8 +456,6 @@ def main():
             online=args.online,
             gpu=gpu,
             proxy_model=proxy,
-            defense=args.defense,
-            max_audit_samples=args.max_audit_samples,
             seeds=args.seeds if attack == "rmia" else None,
             seed=job_seed,
         )
