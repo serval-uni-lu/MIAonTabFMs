@@ -47,7 +47,6 @@ These values disable a defense and are skipped:
 ```text
 --kanon-ks 1
 --label-kanon-ks 1
---knn-ks 1
 --attn-dropout-ps 0
 --layer-dropout-ps 0
 ```
@@ -62,7 +61,6 @@ uv run run_defenses/eval_defenses.py \
   --model tabpfn \
   --kanon-ks 1 \
   --label-kanon-ks 1 \
-  --knn-ks 1 \
   --attn-dropout-ps 0.2 0.3 0.4 \
   --attn-dropout-layers all \
   --layer-dropout-ps 0 \
@@ -84,7 +82,6 @@ uv run run_defenses/eval_defenses.py \
   --model tabpfn \
   --kanon-ks 1 \
   --label-kanon-ks 1 \
-  --knn-ks 1 \
   --attn-dropout-ps 0.3 \
   --auto-top-dropout \
   --auto-dropout-top-layers 6 \
@@ -103,7 +100,6 @@ uv run run_defenses/eval_defenses.py \
   --kanon-ks 1 \
   --label-kanon-ks 2 3 5\
   --label-kanon-alphas 0.5 0.6 0.7 0.9 \
-  --knn-ks 1 \
   --attn-dropout-ps 0 \
   --high-risk-guardrail \
   --high-risk-fallback label_kanon \
@@ -131,7 +127,6 @@ uv run run_defenses/eval_defenses.py \
   --kanon-ks 1 \
   --label-kanon-ks 2 4 \
   --label-kanon-alphas 0.7 0.9 \
-  --knn-ks 1 \
   --attn-dropout-ps 0 \
   --layer-dropout-ps 0 \
   --attacks rmia amia
