@@ -187,7 +187,7 @@ def run_qmia_attack(
 
 
 
-def main(dataset_name: str = "locations", mode: str = "load", gpu: str = None, model_name: str = None, defense: str = "none", seed: int = None):
+def main(dataset_name: str = "locations", mode: str = "load", gpu: str = None, model_name: str = None, seed: int = None):
     """
     Main entry point for running ML Privacy Meter experiments.
 
@@ -228,11 +228,7 @@ def main(dataset_name: str = "locations", mode: str = "load", gpu: str = None, m
     log_dir = os.path.join(base_log_dir, "quantile_reg")
     rmia_log_dir = os.path.join(base_log_dir, "rmia")
     configs["run"]["log_dir"] = log_dir
-    report_dir = (
-        os.path.join(log_dir, f"defense_{defense}", "report")
-        if defense != "none"
-        else os.path.join(log_dir, "report")
-    )
+    report_dir = os.path.join(log_dir, "report")
     directories = {
         "log_dir": log_dir,
         "report_dir": report_dir,
@@ -292,15 +288,6 @@ def main(dataset_name: str = "locations", mode: str = "load", gpu: str = None, m
         )
     if _trim_idx is not None and memberships.shape[1] != len(dataset):
         memberships = memberships[:, _trim_idx]
-
-    if defense != "none":
-        from run_defenses.hamp_inference import make_hamp_wrapper, log_defense_accuracy
-        configs["run"]["log_dir"] = os.path.join(log_dir, f"defense_{defense}")
-        orig_target = models_list[0]
-        models_list = [make_hamp_wrapper(models_list[0], dataset.data, model_name_for_logs)] + models_list[1:]
-        log_defense_accuracy(orig_target, models_list[0],
-                             X[training_size:], y[training_size:],
-                             directories["report_dir"], logger)
 
     print(f"Script finished in {time.time() - start_time:.2f} seconds.")
 
@@ -400,8 +387,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--skip-config", action="store_true",
                         help="Skip rewriting the YAML config if it already exists.")
-    parser.add_argument("--defense", type=str, default="none", choices=["none", "hamp"],
-                        help="Apply a test-time defense before computing attack signals.")
     parser.add_argument("--max-audit-samples", type=int, default=None,
                         help="Cap the audit dataset to this many samples.")
     parser.add_argument("--seed", type=int, default=None,
@@ -430,4 +415,4 @@ if __name__ == "__main__":
         with open(config_file, "w") as f:
             yaml.dump(_cfg, f, sort_keys=False)
 
-    main(dataset_name=args.dataset, mode=args.mode, gpu=args.gpu, model_name=args.model, defense=args.defense, seed=args.seed)
+    main(dataset_name=args.dataset, mode=args.mode, gpu=args.gpu, model_name=args.model, seed=args.seed)

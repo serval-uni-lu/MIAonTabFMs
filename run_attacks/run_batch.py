@@ -236,7 +236,6 @@ def run_one(
     online: bool = False,
     gpu: Optional[str] = None,
     proxy_model: Optional[str] = None,
-    defense: str = "none",
     max_audit_samples: Optional[int] = None,
     seeds: Optional[str] = None,
     seed: Optional[int] = None,
@@ -261,8 +260,6 @@ def run_one(
         cmd += ["--seeds", seeds]
     if seed is not None and attack != "rmia":
         cmd += ["--seed", str(seed)]
-    if defense != "none":
-        cmd += ["--defense", defense]
     if max_audit_samples is not None and attack == "qmia":
         cmd += ["--max-audit-samples", str(max_audit_samples)]
 
@@ -310,8 +307,6 @@ def main():
                         help="Print commands without executing.")
     parser.add_argument("--online", action="store_true",
                         help="Online mode (rmia/lira only).")
-    parser.add_argument("--defense", type=str, default="none", choices=["none", "hamp"],
-                        help="Test-time defense (rmia/lira/loss/population/qmia).")
     parser.add_argument("--proxy-models", type=str, default=None,
                         help="Comma-separated proxy model names or 'all' (rmia only).")
     parser.add_argument("--gpus", type=str, default=None,
@@ -326,8 +321,6 @@ def main():
     args = parser.parse_args()
     attack = args.attack
     mode = args.mode if args.mode is not None else DEFAULT_MODES[attack]
-    if attack == "rmia" and args.defense != "none" and args.seeds is None:
-        args.seeds = "1"
 
     # --- Resolve datasets ---
     dataset_items = parse_csv_arg(args.datasets)
@@ -476,7 +469,6 @@ def main():
             online=args.online,
             gpu=gpu,
             proxy_model=proxy,
-            defense=args.defense,
             max_audit_samples=args.max_audit_samples,
             seeds=args.seeds if attack == "rmia" else None,
             seed=job_seed,

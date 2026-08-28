@@ -60,7 +60,7 @@ def prepare_tabular_arrays(df: pd.DataFrame):
     return X, y
 
 
-def main(dataset_name: str = "locations", model_name: str = None, mode: str = "load", defense: str = "none", seed: int = None):
+def main(dataset_name: str = "locations", model_name: str = None, mode: str = "load", seed: int = None):
     torch.backends.cudnn.benchmark = True
 
     config_filename = f"{dataset_name}_{model_name}.yaml" if model_name else f"{dataset_name}.yaml"
@@ -86,11 +86,7 @@ def main(dataset_name: str = "locations", model_name: str = None, mode: str = "l
     configs["audit"]["num_ref_models"] = 0
     num_reference_models = 0
 
-    report_dir = (
-        os.path.join(log_dir, f"defense_{defense}", "report")
-        if defense != "none"
-        else os.path.join(log_dir, "report")
-    )
+    report_dir = os.path.join(log_dir, "report")
     directories = {
         "log_dir": log_dir,
         "report_dir": report_dir,
@@ -169,15 +165,6 @@ def main(dataset_name: str = "locations", model_name: str = None, mode: str = "l
         os.makedirs(directories["signal_dir"], exist_ok=True)
         np.save(pop_cache_path, rmia_pop_sigs[:, :num_experiments])
 
-    if defense != "none":
-        from run_defenses.hamp_inference import make_hamp_wrapper, log_defense_accuracy
-        configs["run"]["log_dir"] = os.path.join(log_dir, f"defense_{defense}")
-        orig_target = target_models_list[0]
-        target_models_list = [make_hamp_wrapper(m, dataset.data, model_name_for_logs) for m in target_models_list]
-        log_defense_accuracy(orig_target, target_models_list[0],
-                             X[training_size:], y[training_size:],
-                             directories["report_dir"], logger)
-
     logger.info("Preparing signals for auditing dataset")
     signals = get_model_signals(target_models_list, auditing_dataset, configs, logger)
 
@@ -208,7 +195,7 @@ def main(dataset_name: str = "locations", model_name: str = None, mode: str = "l
             directories["report_dir"], mia_score_list, membership_list, logger
         )
 
-    if seed is not None and defense == "none":
+    if seed is not None:
         from run_attacks.seed_summary import update_seed_row
         update_seed_row(
             "population", seed,
@@ -238,8 +225,6 @@ if __name__ == "__main__":
         choices=["signal", "load"],
         help="'signal' deletes existing signals and recomputes them from RMIA models; 'load' reuses existing signals (default).",
     )
-    parser.add_argument("--defense", type=str, default="none", choices=["none", "hamp"],
-                        help="Apply a test-time defense before computing attack signals.")
     parser.add_argument("--seed", type=int, default=None,
                         help="Random seed matching a prior RMIA seeded run. Reads models and signals from seed<seed>/ subdirectory.")
     args = parser.parse_args()
@@ -254,4 +239,4 @@ if __name__ == "__main__":
     from models.utils import load_models
     from util import check_configs, setup_log, initialize_seeds, create_directories
 
-    main(dataset_name=args.dataset, model_name=args.model, mode=args.mode, defense=args.defense, seed=args.seed)
+    main(dataset_name=args.dataset, model_name=args.model, mode=args.mode, seed=args.seed)
