@@ -62,7 +62,7 @@ def prepare_tabular_arrays(df: pd.DataFrame):
     return X, y
 
 
-def main(dataset_name: str = "locations", model_name: str = None, online: bool = False, mode: str = "load", seed: int = None):
+def main(dataset_name: str = "locations", model_name: str = None, online: bool = False, mode: str = "load", defense: str = "none", seed: int = None):
     # Enable cudnn benchmark for faster training if inputs are consistent
     torch.backends.cudnn.benchmark = True
 
@@ -90,7 +90,10 @@ def main(dataset_name: str = "locations", model_name: str = None, online: bool =
     configs["run"]["log_dir"] = log_dir
 
     report_suffix = "_online" if online else ""
-    report_dir = os.path.join(log_dir, f"report{report_suffix}")
+    if defense != "none":
+        report_dir = os.path.join(log_dir, f"defense_{defense}", f"report{report_suffix}")
+    else:
+        report_dir = os.path.join(log_dir, f"report{report_suffix}")
     directories = {
         "log_dir": log_dir,
         "report_dir": report_dir,
@@ -158,6 +161,15 @@ def main(dataset_name: str = "locations", model_name: str = None, online: bool =
 
     configs["audit"]["algorithm"] = "LIRA"
 
+    if defense != "none":
+        from run_defenses.hamp_inference import make_hamp_wrapper, log_defense_accuracy
+        configs["run"]["log_dir"] = os.path.join(log_dir, f"defense_{defense}")
+        orig_target = models_list[0]
+        models_list = [make_hamp_wrapper(m, dataset.data, model_name_for_logs) for m in models_list]
+        log_defense_accuracy(orig_target, models_list[0],
+                             X[training_size:], y[training_size:],
+                             directories["report_dir"], logger)
+
     logger.info("Preparing model signals for auditing dataset")
     all_signals = get_model_signals(models_list, auditing_dataset, configs, logger)
 
@@ -178,7 +190,7 @@ def main(dataset_name: str = "locations", model_name: str = None, online: bool =
             directories["report_dir"], mia_score_list, membership_list, logger
         )
 
-    if seed is not None:
+    if seed is not None and defense == "none":
         from run_attacks.seed_summary import update_seed_row
         attack_label = "lira_online" if online else "lira"
         update_seed_row(
@@ -214,6 +226,8 @@ if __name__ == "__main__":
         choices=["signal", "load"],
         help="'signal' deletes existing signals and recomputes them from RMIA models; 'load' reuses existing signals (default).",
     )
+    parser.add_argument("--defense", type=str, default="none", choices=["none", "hamp"],
+                        help="Apply a test-time defense before computing attack signals.")
     parser.add_argument("--seed", type=int, default=None,
                         help="Random seed matching a prior RMIA seeded run. Reads models and signals from seed<seed>/ subdirectory.")
     args = parser.parse_args()
@@ -228,4 +242,4 @@ if __name__ == "__main__":
     from models.utils import load_models
     from util import check_configs, setup_log, initialize_seeds, create_directories
 
-    main(dataset_name=args.dataset, model_name=args.model, online=args.online, mode=args.mode, seed=args.seed)
+    main(dataset_name=args.dataset, model_name=args.model, online=args.online, mode=args.mode, defense=args.defense, seed=args.seed)
