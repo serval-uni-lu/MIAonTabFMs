@@ -1,6 +1,6 @@
 # MIA on Tabular Foundation Models
 
-Membership Inference Attacks (MIA) on tabular models using five attack methods: **RMIA**, **LiRA**, **Attack-P**, **LOSS**, and **QMIA**. A new attack **AMIA** and **High-risk (target) label k-anonymity** defence are proposed.
+Membership Inference Attacks (MIA) on tabular models using four attack methods: **RMIA**, **LiRA**, **Attack-P**, and **LOSS**.
 
 ---
 
@@ -89,7 +89,7 @@ Optuna runs 30 trials with 3-fold CV per shadow model (configurable via `tuning_
 
 ## Attack Pipeline
 
-LiRA, LOSS, Attack-P (population attack), and QMIA (quantile regression) **reuse the models trained by RMIA** — always run RMIA first.
+LiRA, LOSS, and Attack-P (population attack) **reuse the models trained by RMIA** — always run RMIA first.
 
 
 ### Single dataset + model
@@ -125,11 +125,6 @@ uv run run_attacks/lira.py --dataset locations --model mlp --online
 uv run run_attacks/loss.py --dataset locations --model mlp
 ```
 
-**QMIA** (quantile-regression MIA; reuses RMIA models):
-```bash
-uv run run_attacks/quantile_regression.py --dataset locations --model mlp
-```
-
 **Population attack / attack-p** (reuses RMIA models + population signals):
 ```bash
 uv run run_attacks/population_attack.py --dataset locations --model mlp
@@ -143,7 +138,7 @@ uv run run_attacks/population_attack.py --dataset locations --model mlp --mode s
 
 ### Batch runs (all datasets × all models)
 
-All attacks share a single launcher. Replace `<attack>` with `rmia`, `lira`, `loss`, `population`, or `qmia`.
+All attacks share a single launcher. Replace `<attack>` with `rmia`, `lira`, `loss`, or `population`.
 
 ```bash
 uv run run_attacks/run_batch.py --attack <attack> --datasets all --models all --skip-existing --continue-on-error
@@ -178,17 +173,6 @@ START_PHASE=5 DATASETS=credit_rating TABFM_MODELS=tabpfn GPUS=0 ./run_all_experi
 
 If executable permissions complain, use `bash run_all_experiments_batch.sh` with the same environment variables.
 
-Phase 6 (high-risk label k-anon defenses) always applies the
-`--high-risk-nonmember-margin` push — see
-[run_defenses/README.md](run_defenses/README.md) for what the margin does.
-Override it (and its trigger threshold / fold count) with
-`HIGH_RISK_NONMEMBER_MARGIN`, `HIGH_RISK_NEAR_PERFECT_AUC`, and
-`HIGH_RISK_KFOLD_FOLDS` (defaults: `0.75`, `0.85`, `5`):
-
-```bash
-HIGH_RISK_NONMEMBER_MARGIN=0.5 HIGH_RISK_NEAR_PERFECT_AUC=0.9 START_PHASE=6 END_PHASE=6 ./run_all_experiments_batch.sh
-```
-
 
 ### Including TabArena datasets in batch
 
@@ -213,10 +197,9 @@ uv run run_attacks/run_batch.py --attack lira \
 | Flag | Applies to | Description |
 |---|---|---|
 | `--mode train` | rmia | Delete existing models and retrain from scratch, then recompute signals. Add `--skip-existing` to skip retraining if models are already on disk |
-| `--mode signal` | rmia, lira, population, qmia | Load existing RMIA models and recompute signals (no retraining). For rmia this is explicit; for others it is the only recompute option |
-| `--mode load` | rmia, lira, population, qmia | Reuse existing models and cached signals (default for all except rmia) |
+| `--mode signal` | rmia, lira, population | Load existing RMIA models and recompute signals (no retraining). For rmia this is explicit; for others it is the only recompute option |
+| `--mode load` | rmia, lira, population | Reuse existing models and cached signals (default for all except rmia) |
 | `--online` | rmia, lira | **Online** variant: scores each sample using both IN and OUT shadow models. Results go to `report_online/`. Use with `--mode load` to reuse existing signals |
-| `--defense hamp` | rmia, lira, loss, population, qmia | Apply HAMP test-time defense before computing signals |
 | `--skip-existing` | all | Skip combinations that already have output |
 | `--continue-on-error` | all | Keep going if one combination fails |
 | `--dry-run` | all | Print planned commands without executing |
@@ -311,7 +294,7 @@ uv run run_attacks/rmia.py --dataset locations --model rf --mode load --num-ref 
 
 ---
 ## Proxy models
-Use other models as reference models for a specific target model (RMIA and QMIA).
+Use other models as reference models for a specific target model (RMIA only).
 
 All target × proxy combinations (offline by default):
 ```bash
@@ -327,7 +310,7 @@ uv run run_attacks/run_batch.py --attack rmia \
 
 ---
 
-## Attention-based MIA
+## Attention-based MIA (TabPFN / Real-TabPFN)
 
 Exploits the ICL transformer's attention weights to distinguish members from non-members. A sample present in the training context can attend to itself in the key set, producing a sharp attention spike. Non-members have no matching key, so their attention is more diffuse.
 
@@ -376,9 +359,19 @@ Requires the corresponding `rmia_ctx<pct>/` runs to exist (produced by `run_cont
 | `--gpu` | auto | GPU ID, e.g. `0` |
 | `--batch-size` | 200 | Inference batch size |
 | `--plots-only` | off | Regenerate plots from cached signals without re-running inference |
-| `--defense` | `none` | `hamp` applies the output-probability HAMP defense before signal extraction. Other TabFM defenses are run through `run_defenses/eval_defenses.py` |
 | `--context-pct` | `100` | Context-size percentage matching a prior `rmia_ctx<pct>/` run |
 | `--seed` | `1` | Use seeded artifacts under `logs/<dataset>/<model>/seed<seed>/{rmia,amia}/` |
 
 `amia_tabicl.py` and `amia_tabdpt.py` infer the model from the script name and do not accept `--model`.
+
+
+
+---
+
+## Defenses
+
+For **TabFMs defenses**, see
+[run_defenses/README.md](run_defenses/README.md). It covers k-anon, label
+k-anon, attention dropout/clipping, auto top-layer dropout, and
+high-risk guardrails, including the seeded defense workflow.
 
