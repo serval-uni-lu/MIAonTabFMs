@@ -5,7 +5,7 @@ set -u
 #
 # Defaults:
 #   - all datasets discovered by run_attacks/run_batch.py
-#   - all supported attack models for RMIA/LiRA/population/HAMP
+#   - all supported attack models for RMIA/LiRA/population
 #   - TabFM models only for AMIA and TabFM defenses
 #   - seed 1 for seeded RMIA/AMIA/defense evaluation
 #   - GPU 0 by default; set GPUS="" to force CPU
@@ -16,7 +16,6 @@ set -u
 #   START_PHASE=5 END_PHASE=5 ./run_all_experiments_batch.sh  # run only Phase 5
 #   GPUS=0,1,2 CONTINUE_ON_ERROR=1 ./run_all_experiments_batch.sh
 #   GPUS="" ./run_all_experiments_batch.sh  # force CPU
-#   HIGH_RISK_NONMEMBER_MARGIN=0.5 HIGH_RISK_NEAR_PERFECT_AUC=0.9 START_PHASE=6 END_PHASE=6 ./run_all_experiments_batch.sh
 
 DATASETS="${DATASETS:-all}"
 SKIP_DATASETS="${SKIP_DATASETS:-aloi,purchases10,46956_seismic-bumps,lcld}"
@@ -26,7 +25,7 @@ SEEDS="${SEEDS:-1,2,3,4,5}"
 GPUS="${GPUS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 START_PHASE="${START_PHASE:-1}"
-END_PHASE="${END_PHASE:-6}"
+END_PHASE="${END_PHASE:-5}"
 CONTINUE_ON_ERROR="${CONTINUE_ON_ERROR:-1}"
 MAX_JOBS="${MAX_JOBS:-1}"
 
@@ -35,9 +34,6 @@ LABEL_ALPHAS="${LABEL_ALPHAS:-0.0 0.3 0.5}"
 ATTN_DROPOUT_PS="${ATTN_DROPOUT_PS:-0.1 0.3 0.5 0.7 0.9}"
 # LAYER_DROPOUT_PS="${LAYER_DROPOUT_PS:-0.1 0.3 0.5}"
 DEFENSE_SEEDS="${DEFENSE_SEEDS:-1}"
-HIGH_RISK_NONMEMBER_MARGIN="${HIGH_RISK_NONMEMBER_MARGIN:-0.75}"
-HIGH_RISK_NEAR_PERFECT_AUC="${HIGH_RISK_NEAR_PERFECT_AUC:-0.85}"
-HIGH_RISK_KFOLD_FOLDS="${HIGH_RISK_KFOLD_FOLDS:-5}"
 
 failures=()
 _interrupted=0
@@ -49,12 +45,12 @@ trap '_interrupted=1; echo; echo "[SIGINT] Skipping current step — continuing.
 validate_phase_range() {
   case "${START_PHASE}:${END_PHASE}" in
     *[!0-9:]*|:*|*:)
-      echo "START_PHASE and END_PHASE must be integers in 1..6" >&2
+      echo "START_PHASE and END_PHASE must be integers in 1..5" >&2
       exit 2
       ;;
   esac
-  if (( START_PHASE < 1 || END_PHASE > 6 || START_PHASE > END_PHASE )); then
-    echo "Invalid phase range: START_PHASE=${START_PHASE} END_PHASE=${END_PHASE}; expected 1 <= START_PHASE <= END_PHASE <= 6" >&2
+  if (( START_PHASE < 1 || END_PHASE > 5 || START_PHASE > END_PHASE )); then
+    echo "Invalid phase range: START_PHASE=${START_PHASE} END_PHASE=${END_PHASE}; expected 1 <= START_PHASE <= END_PHASE <= 5" >&2
     exit 2
   fi
 }
@@ -286,9 +282,6 @@ echo "CONTINUE_ON_ERROR=${CONTINUE_ON_ERROR}"
 echo "START_PHASE=${START_PHASE}"
 echo "END_PHASE=${END_PHASE}"
 echo "MAX_JOBS=${MAX_JOBS}"
-echo "HIGH_RISK_NONMEMBER_MARGIN=${HIGH_RISK_NONMEMBER_MARGIN}"
-echo "HIGH_RISK_NEAR_PERFECT_AUC=${HIGH_RISK_NEAR_PERFECT_AUC}"
-echo "HIGH_RISK_KFOLD_FOLDS=${HIGH_RISK_KFOLD_FOLDS}"
 
 common=()
 batch_common_args common
@@ -345,29 +338,12 @@ run_cmd uv run run_attacks/run_batch.py --attack lira "${seeded_load_args[@]}" -
 run_cmd uv run run_attacks/run_batch.py --attack lira "${seeded_load_args[@]}" --mode load --online
 #run_cmd uv run run_attacks/run_batch.py --attack loss "${seeded_load_args[@]}"
 run_cmd uv run run_attacks/run_batch.py --attack population "${seeded_load_args[@]}" --mode load
-#run_cmd uv run run_attacks/run_batch.py --attack qmia "${seeded_load_args[@]}" --mode load
 
 echo
 fi
 
 if should_run_phase 3; then
-echo "========== Phase 3: HAMP defense for RMIA =========="
-hamp_args=(--datasets "$DATASETS_FILTERED" --models "$MODELS" --mode load --defense hamp --seeds "$SEEDS" --skip-existing)
-if [[ "$CONTINUE_ON_ERROR" == "1" ]]; then
-  hamp_args+=(--continue-on-error)
-fi
-if [[ "$DRY_RUN" == "1" ]]; then
-  hamp_args+=(--dry-run)
-fi
-if [[ -n "$GPUS" ]]; then
-  hamp_args+=(--gpus "$GPUS")
-fi
-run_cmd uv run run_attacks/run_batch.py --attack rmia "${hamp_args[@]}"
-echo
-fi
-
-if should_run_phase 4; then
-echo "========== Phase 4: AMIA for TabFM models =========="
+echo "========== Phase 3: AMIA for TabFM models =========="
 
 amia_job_index=0
 for dataset in "${datasets[@]}"; do
@@ -403,8 +379,8 @@ wait_for_all_jobs
 echo
 fi
 
-if should_run_phase 5; then
-echo "========== Phase 5: label k-anon + attention dropout defenses =========="
+if should_run_phase 4; then
+echo "========== Phase 4: label k-anon + attention dropout defenses =========="
 defense_job_index=0
 for dataset in "${datasets[@]}"; do
   for model in "${tabfm_models[@]}"; do
@@ -438,8 +414,8 @@ wait_for_all_jobs
 echo
 fi
 
-if should_run_phase 6; then
-echo "========== Phase 6: high-risk label k-anon defenses =========="
+if should_run_phase 5; then
+echo "========== Phase 5: high-risk label k-anon defenses =========="
 high_risk_job_index=0
 for dataset in "${datasets[@]}"; do
   for model in "${tabfm_models[@]}"; do
@@ -461,9 +437,6 @@ for dataset in "${datasets[@]}"; do
         --layer-dropout-ps 0 \
         --high-risk-guardrail \
         --high-risk-fallback label_kanon \
-        --high-risk-nonmember-margin "$HIGH_RISK_NONMEMBER_MARGIN" \
-        --high-risk-near-perfect-auc "$HIGH_RISK_NEAR_PERFECT_AUC" \
-        --high-risk-kfold-folds "$HIGH_RISK_KFOLD_FOLDS" \
         --skip-existing \
         --attacks rmia amia \
         "${job_gpu_args[@]}"
