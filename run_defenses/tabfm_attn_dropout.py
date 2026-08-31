@@ -23,16 +23,12 @@ k-anon (index-based) from tabfm_kanon.py.
 Usage
 -----
     from run_defenses.tabfm_attn_dropout import (
-        AttnDropoutWrapper, KNNKeySmoothWrapper, LayerDropoutWrapper,
+        AttnDropoutWrapper, LayerDropoutWrapper,
     )
 
     wrapped_attn  = AttnDropoutWrapper(model, p=0.3)
-    wrapped_knn = KNNKeySmoothWrapper(model, knn_k=5, alpha=0.7)
     wrapped_guard = HighRiskQueryDropoutWrapper(
         model, n_context=500, threshold=0.03, p=0.3, layer_indices="4,5,7,8,10,11"
-    )
-    wrapped_knn_guard = HighRiskQueryKNNWrapper(
-        model, n_context=500, threshold=0.03, knn_k=5, alpha=0.7
     )
     wrapped_layer = LayerDropoutWrapper(model, p=0.2)
     proba = wrapped_attn.predict_proba(X_test)
@@ -44,10 +40,6 @@ import torch.nn.functional as F
 import threading
 import contextlib
 
-
-_KNN_PATCH_LOCK = threading.RLock()
-_KNN_PATCH_DEPTH = 0
-_KNN_PATCH_ORIG = None
 
 _ADROP_SDPA_LOCK = threading.RLock()
 _ADROP_SDPA_DEPTH = 0
@@ -214,121 +206,6 @@ class AttnDropoutWrapper:
             if self.attention_mode == "tabicl":
                 stack.enter_context(_tabicl_predict_context(self.model))
             stack.enter_context(self._ctx)
-            return self.model.predict_proba(X, **predict_kwargs)
-
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.classes_[self.predict_proba(X).argmax(axis=1)]
-
-    def __getattr__(self, name: str):
-        return getattr(self.model, name)
-
-
-# ── deterministic kNN key smoothing ─────────────────────────────────────────
-
-def _knn_smooth_keys(K: torch.Tensor, knn_k: int, alpha: float) -> torch.Tensor:
-    """Move each key toward the mean of its k nearest neighbors in key space."""
-    *leading, N, D = K.shape
-    if knn_k <= 1 or N <= 1 or alpha >= 1.0:
-        return K
-
-    k_eff = min(int(knn_k), N - 1)
-    K_flat = K.reshape(-1, N, D)
-    BH = K_flat.shape[0]
-    # Compute neighbors in float32 for numerical stability, then cast the
-    # smoothed keys back to the original dtype.
-    K_metric = K_flat.float()
-    dist = torch.cdist(K_metric, K_metric, p=2)
-    diag = torch.arange(N, device=K_flat.device)
-    dist[:, diag, diag] = float("inf")
-    nn_idx = dist.topk(k=k_eff, dim=-1, largest=False).indices  # (BH, N, k)
-    # Use advanced indexing instead of expand+gather to avoid the O(N²·D)
-    # temporary tensor that would blow up GPU memory for large contexts.
-    b_idx = torch.arange(BH, device=K_flat.device)[:, None, None].expand(BH, N, k_eff)
-    neigh = K_flat[b_idx, nn_idx]          # (BH, N, k, D)
-    neigh_mean = neigh.mean(dim=2)
-    K_out = alpha * K_flat + (1.0 - alpha) * neigh_mean
-    return K_out.reshape(*leading, N, D)
-
-
-class _KNNKeySmoothSDPA:
-    """kNN key smoothing for real context rows in row cross-attention.
-
-    For each real context key K_i, find its nearest neighbors among the other
-    context keys and replace it with alpha*K_i + (1-alpha)*mean(kNN_i).  This is
-    softer than hard k-anonymity and should preserve utility better.
-    """
-
-    def __init__(self, knn_k: int, alpha: float = 0.7, thinking_rows: int = 0):
-        if knn_k <= 1:
-            raise ValueError(f"knn_k must be > 1, got {knn_k}")
-        if not (0.0 <= alpha <= 1.0):
-            raise ValueError(f"alpha must be in [0, 1], got {alpha}")
-        self.knn_k = int(knn_k)
-        self.alpha = float(alpha)
-        self.thinking_rows = max(0, int(thinking_rows))
-
-    def __enter__(self):
-        global _KNN_PATCH_DEPTH, _KNN_PATCH_ORIG
-        with _KNN_PATCH_LOCK:
-            if _KNN_PATCH_DEPTH == 0:
-                _KNN_PATCH_ORIG = F.scaled_dot_product_attention
-                knn_k = self.knn_k
-                alpha = self.alpha
-                thinking_rows = self.thinking_rows
-                orig = _KNN_PATCH_ORIG
-
-                def _patched(Q, K, V, attn_mask=None, dropout_p=0.0, is_causal=False, **kw):
-                    # Fire for both TabPFN (q < k) and TabDPT/TabICL (q > k) cross-attention.
-                    if Q.shape[-2] != K.shape[-2] and not is_causal:
-                        if thinking_rows > 0 and K.shape[-2] > thinking_rows + 1:
-                            K_keep = K[..., :thinking_rows, :]
-                            K_ctx = K[..., thinking_rows:, :]
-                            K_ctx = _knn_smooth_keys(K_ctx, knn_k=knn_k, alpha=alpha)
-                            K = torch.cat([K_keep, K_ctx], dim=-2)
-                        else:
-                            K = _knn_smooth_keys(K, knn_k=knn_k, alpha=alpha)
-                    return orig(Q, K, V, attn_mask=attn_mask, dropout_p=dropout_p,
-                                is_causal=is_causal, **kw)
-
-                F.scaled_dot_product_attention = _patched
-            _KNN_PATCH_DEPTH += 1
-        return self
-
-    def __exit__(self, *_):
-        global _KNN_PATCH_DEPTH, _KNN_PATCH_ORIG
-        with _KNN_PATCH_LOCK:
-            _KNN_PATCH_DEPTH = max(0, _KNN_PATCH_DEPTH - 1)
-            if _KNN_PATCH_DEPTH == 0 and _KNN_PATCH_ORIG is not None:
-                F.scaled_dot_product_attention = _KNN_PATCH_ORIG
-                _KNN_PATCH_ORIG = None
-
-
-class KNNKeySmoothWrapper:
-    """Deterministic kNN key smoothing for row attention.
-
-    knn_k controls the local neighborhood size; alpha controls how much of the
-    original key is retained.  alpha=1 is no-op, alpha=0 fully replaces each key
-    by its neighbor mean.
-    """
-
-    def __init__(self, model, knn_k: int = 5, alpha: float = 0.7,
-                 thinking_rows: int = 0, attention_mode: str = "tabpfn"):
-        self.model = model
-        self.knn_k = int(knn_k)
-        self.alpha = float(alpha)
-        self.thinking_rows = max(0, int(thinking_rows))
-        self.attention_mode = str(attention_mode).lower()
-        self.classes_ = _model_classes(model)
-
-    def predict_proba(self, X: np.ndarray, **predict_kwargs) -> np.ndarray:
-        with contextlib.ExitStack() as stack:
-            if self.attention_mode == "tabicl":
-                stack.enter_context(_tabicl_predict_context(self.model))
-            stack.enter_context(_KNNKeySmoothSDPA(
-                self.knn_k,
-                alpha=self.alpha,
-                thinking_rows=self.thinking_rows,
-            ))
             return self.model.predict_proba(X, **predict_kwargs)
 
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -615,41 +492,6 @@ class HighRiskQueryDropoutWrapper(HighRiskQueryFallbackWrapper):
         )
         self.p = float(p)
         self.layer_indices = layer_indices
-
-
-class HighRiskQueryKNNWrapper(HighRiskQueryFallbackWrapper):
-    """Rerun only high-risk queries with kNN key smoothing."""
-
-    def __init__(
-        self,
-        model,
-        n_context: int,
-        threshold: float,
-        knn_k: int = 5,
-        alpha: float = 0.7,
-        thinking_rows: int = 0,
-        probe_batch_size: int = 64,
-        capture_backend: str = "tabpfn",
-        attention_mode: str = "tabpfn",
-    ):
-        super().__init__(
-            model=model,
-            fallback_model=KNNKeySmoothWrapper(
-                model,
-                knn_k=knn_k,
-                alpha=alpha,
-                thinking_rows=thinking_rows,
-                attention_mode=attention_mode,
-            ),
-            n_context=n_context,
-            threshold=threshold,
-            probe_batch_size=probe_batch_size,
-            capture_backend=capture_backend,
-            thinking_rows=thinking_rows,
-        )
-        self.knn_k = int(knn_k)
-        self.alpha = float(alpha)
-        self.thinking_rows = max(0, int(thinking_rows))
 
 
 # ── layer (hidden state) dropout ─────────────────────────────────────────────

@@ -1330,13 +1330,6 @@ def main():
                             "fallback. Affected defense names get a '_v' suffix, "
                             "e.g. label_kanon_k5_v."
                         ))
-    parser.add_argument("--knn-ks",             type=int,   nargs="+", default=[],
-                        help="k values for kNN key smoothing; empty disables this defense.")
-    parser.add_argument("--knn-alphas",         type=float, nargs="+", default=[0.7],
-                        help=(
-                            "Original-key retention for kNN smoothing in [0, 1]. "
-                            "alpha=1.0 is an explicit no-smoothing identity setting."
-                        ))
     parser.add_argument("--attn-dropout-ps",  type=float, nargs="+", default=[0.1, 0.3, 0.5],
                         help="Dropout probabilities for attention weight dropout.")
     parser.add_argument("--attn-dropout-layers", type=str, default="all",
@@ -1357,10 +1350,10 @@ def main():
     parser.add_argument("--high-risk-dropout", action="store_true",
                         help=(
                             "Deprecated alias for --high-risk-guardrail. The fallback can be "
-                            "dropout, knn, or label_kanon."
+                            "dropout or label_kanon."
                         ))
     parser.add_argument("--high-risk-fallback", type=str, default="dropout",
-                        choices=["dropout", "knn", "label_kanon"],
+                        choices=["dropout", "label_kanon"],
                         help="Fallback defense used only for high-risk queries.")
     parser.add_argument("--high-risk-score", type=str, default="row_max",
                         choices=["row_max", "row_ent", "rmia_score"],
@@ -1625,8 +1618,6 @@ def main():
         AttnDropoutWrapper,
         HighRiskQueryDropoutWrapper,
         HighRiskQueryFallbackWrapper,
-        HighRiskQueryKNNWrapper,
-        KNNKeySmoothWrapper,
         LayerDropoutWrapper,
     )
     from run_defenses.tabfm_introspection import infer_num_thinking_rows
@@ -1739,21 +1730,6 @@ def main():
 
         return name, _wrap
 
-    def _knn_component(knn_k: int, alpha: float):
-        pct = int(round(alpha * 100))
-        name = f"knn_k{knn_k}_a{pct}"
-
-        def _wrap(m, _idx, _k=knn_k, _alpha=alpha, _tr=thinking_rows):
-            return KNNKeySmoothWrapper(
-                m,
-                knn_k=_k,
-                alpha=_alpha,
-                thinking_rows=_tr,
-                attention_mode=kanon_attention_mode,
-            )
-
-        return name, _wrap
-
     def _attn_dropout_component(p: float):
         name = f"attn_drop_p{round(p * 100)}{attn_dropout_layer_suffix}"
         return name, lambda m, _idx, _p=p: AttnDropoutWrapper(
@@ -1787,43 +1763,6 @@ def main():
                 probe_batch_size=args.high_risk_probe_batch_size or args.batch_size,
                 capture_backend=args.model.lower(),
                 thinking_rows=thinking_rows,
-            )
-
-        _wrap._adaptive_amia = {
-            "fallback_name": fallback_name,
-            "fallback_wrap": _fallback_wrap,
-            "score_name": args.high_risk_score,
-            "threshold": high_risk_threshold,
-        }
-        return name, _wrap
-
-    def _high_risk_knn_component(knn_k: int, alpha: float):
-        if high_risk_threshold is None or high_risk_note is None:
-            raise RuntimeError("High-risk threshold was not calibrated.")
-        pct = int(round(alpha * 100))
-        fallback_name = f"knn_k{knn_k}_a{pct}"
-        name = f"highrisk_{fallback_name}"
-
-        def _fallback_wrap(m, _idx, _k=knn_k, _alpha=alpha):
-            return KNNKeySmoothWrapper(
-                m,
-                knn_k=_k,
-                alpha=_alpha,
-                thinking_rows=thinking_rows,
-                attention_mode=kanon_attention_mode,
-            )
-
-        def _wrap(m, _idx, _k=knn_k, _alpha=alpha):
-            return HighRiskQueryKNNWrapper(
-                m,
-                n_context=_model_context_size(_idx),
-                threshold=high_risk_threshold,
-                knn_k=_k,
-                alpha=_alpha,
-                thinking_rows=thinking_rows,
-                probe_batch_size=args.high_risk_probe_batch_size or args.batch_size,
-                capture_backend=args.model.lower(),
-                attention_mode=kanon_attention_mode,
             )
 
         _wrap._adaptive_amia = {
@@ -1913,15 +1852,6 @@ def main():
                         k, alpha, anonymize_values=args.label_kanon_anonymize_values,
                     )
                 )
-    for knn_k in args.knn_ks:
-        if knn_k <= 1:
-            continue
-        for alpha in args.knn_alphas:
-            if alpha < 0.0 or alpha > 1.0:
-                continue
-            defense_configs.append(_knn_component(knn_k, alpha))
-            if high_risk_enabled and args.high_risk_fallback == "knn" and alpha < 1.0:
-                defense_configs.append(_high_risk_knn_component(knn_k, alpha))
     for p in args.attn_dropout_ps:
         if p <= 0:
             continue
@@ -1945,13 +1875,6 @@ def main():
             for alpha in args.label_kanon_alphas
             if 0.0 <= alpha < 1.0
         ]
-        knn_choices = [None] + [
-            _knn_component(knn_k, alpha)
-            for knn_k in args.knn_ks
-            if knn_k > 1
-            for alpha in args.knn_alphas
-            if 0.0 <= alpha < 1.0
-        ]
         attn_choices = [None] + [
             _attn_dropout_component(p) for p in args.attn_dropout_ps
             if p > 0.0
@@ -1963,25 +1886,23 @@ def main():
 
         existing_names = {name for name, _ in defense_configs}
         for kanon_comp in kanon_choices:
-            for knn_comp in knn_choices:
-                for attn_comp in attn_choices:
-                    for layer_comp in layer_choices:
-                        components = [
-                            c for c in (
-                                kanon_comp,
-                                knn_comp,
-                                attn_comp,
-                                layer_comp,
-                            )
-                            if c is not None
-                        ]
-                        if len(components) < 2:
-                            continue
-                        name, wrap = _compose_components(components)
-                        if name in existing_names:
-                            continue
-                        defense_configs.append((name, wrap))
-                        existing_names.add(name)
+            for attn_comp in attn_choices:
+                for layer_comp in layer_choices:
+                    components = [
+                        c for c in (
+                            kanon_comp,
+                            attn_comp,
+                            layer_comp,
+                        )
+                        if c is not None
+                    ]
+                    if len(components) < 2:
+                        continue
+                    name, wrap = _compose_components(components)
+                    if name in existing_names:
+                        continue
+                    defense_configs.append((name, wrap))
+                    existing_names.add(name)
 
     # ── load undefended baseline from attack artifacts ────────────────────────
     base = _load_baseline(amia_log, rmia_log, args.model_idx, mem)
@@ -2046,6 +1967,12 @@ def main():
             row_dict["high_risk_copied_from"] = copied_from
             return row_dict
 
+        # A non-member-margin push was requested but didn't fire for this
+        # dataset/model, so this config is provably identical to the
+        # unsuffixed ("bare") defense -- reuse those results instead of
+        # paying for a full model reload + AMIA/RMIA rerun that can only
+        # reproduce numbers that already exist on disk (or were already
+        # computed earlier in this same sweep).
         if calib is not None and not calib["pushed"] and calib.get("requested_margin"):
             bare_name = calib["bare_name"]
             bare_row = next(
