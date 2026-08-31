@@ -106,71 +106,6 @@ def _slug(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "-", value.strip())
 
 
-def _ood_log_subdir(context_pct: float, seed: int = None,
-                    audit_nonmember_dataset: str = None,
-                    population_dataset: str = None) -> str:
-    base = f"rmia_ctx{int(context_pct)}" if context_pct < 100.0 else "rmia"
-    run_name = base + "_ood_noise25"
-    if seed is not None:
-        return os.path.join(f"seed{seed}", run_name)
-    return run_name
-
-
-def _resolve_ood_dataset_path(dataset_name: str, ood_data_dir: str) -> str:
-    candidates = [
-        os.path.join(ood_data_dir, f"{dataset_name}.csv"),
-        os.path.join(ood_data_dir, f"{dataset_name}_ood_noise25.csv"),
-    ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
-    raise FileNotFoundError(
-        "OOD dataset not found. Looked for: " + ", ".join(candidates)
-    )
-
-
-def _load_ood_arrays(dataset_name: str, ood_data_dir: str) -> tuple[np.ndarray, np.ndarray]:
-    path = _resolve_ood_dataset_path(dataset_name, ood_data_dir)
-    df = pd.read_csv(path, header=None)
-    return prepare_tabular_arrays(df)
-
-
-def _make_ood_auditing_dataset(configs, id_dataset, ood_dataset, logger, memberships):
-    audit_data_size = configs["audit"].get("data_size")
-    target_members = np.where(memberships[0, :])[0]
-    if len(target_members) == 0:
-        raise ValueError("Cannot build OOD audit set: target model has no ID members.")
-
-    if audit_data_size is None:
-        n_members = min(len(target_members), len(ood_dataset))
-    else:
-        if audit_data_size % 2 != 0:
-            raise ValueError("Audit data size must be even for OOD audit evaluation.")
-        n_members = min(audit_data_size // 2, len(target_members), len(ood_dataset))
-    if n_members <= 0:
-        raise ValueError("Cannot build OOD audit set: no OOD nonmembers available.")
-
-    member_idx = np.random.choice(target_members, n_members, replace=False)
-    ood_idx = np.random.choice(len(ood_dataset), n_members, replace=False)
-
-    X = np.concatenate([id_dataset.data[member_idx], ood_dataset.data[ood_idx]], axis=0)
-    y = np.concatenate([id_dataset.targets[member_idx], ood_dataset.targets[ood_idx]], axis=0)
-    auditing_dataset = TabularDataset(X, y)
-
-    id_memberships = memberships[:, member_idx]
-    ood_memberships = np.zeros((memberships.shape[0], n_members), dtype=memberships.dtype)
-    auditing_membership = np.concatenate([id_memberships, ood_memberships], axis=1)
-
-    perm = np.random.permutation(2 * n_members)
-    auditing_dataset = TabularDataset(auditing_dataset.data[perm], auditing_dataset.targets[perm])
-    auditing_membership = auditing_membership[:, perm]
-    logger.info(
-        "Built OOD audit set with %d ID target members and %d OOD nonmembers.",
-        n_members, n_members,
-    )
-    return auditing_dataset, auditing_membership
-
-
 def _load_or_create_seed_permutation(log_dir: str, n_samples: int, seed: int) -> np.ndarray:
     split_dir = os.path.join(log_dir, "splits")
     os.makedirs(split_dir, exist_ok=True)
@@ -311,7 +246,7 @@ def build_proxy_combined_signals(
     return combined_signals, combined_pop_signals, combined_memberships
 
 
-def main(dataset_name: str = "locations", mode: str = "train", context_pct: float = 100.0, gpu: str = None, model_name: str = None, proxy_model: str = None, online: bool = False, num_ref_override: int = None, seed: int = None, skip_existing: bool = False, audit_nonmember_dataset: str = None, population_dataset: str = None, ood_data_dir: str = "data/ood_noise25"):
+def main(dataset_name: str = "locations", mode: str = "train", context_pct: float = 100.0, gpu: str = None, model_name: str = None, proxy_model: str = None, online: bool = False, num_ref_override: int = None, seed: int = None, skip_existing: bool = False):
     """
     Main entry point for running ML Privacy Meter experiments.
 
@@ -363,16 +298,7 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
     model_name_for_logs = str(configs["train"]["model_name"]).lower()
     base_log_dir = os.path.join("ml_privacy_meter", "logs", dataset_name, model_name_for_logs)
     model_log_dir = os.path.join(base_log_dir, _rmia_log_subdir(context_pct, seed))
-    ood_eval = audit_nonmember_dataset is not None or population_dataset is not None
-    tabfm_models = {"tabpfn", "real-tabpfn", "tabicl", "tabdpt"}
-    if ood_eval and model_name_for_logs not in tabfm_models:
-        raise ValueError(f"OOD evaluation is restricted to TabFM models: {sorted(tabfm_models)}")
-    if ood_eval and mode == "train":
-        raise ValueError("OOD evaluation reuses ID-trained models; run normal RMIA training first, then use --mode signal or --mode load with OOD options.")
-    log_dir = (
-        os.path.join(base_log_dir, _ood_log_subdir(context_pct, seed, audit_nonmember_dataset, population_dataset))
-        if ood_eval else model_log_dir
-    )
+    log_dir = model_log_dir
     configs["run"]["log_dir"] = log_dir
     # Proxy runs get their own report dir so normal RMIA results are not overwritten.
     # Online runs also get their own dir so offline results are not overwritten.
@@ -431,24 +357,6 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
 
     dataset = TabularDataset(X[:context_size], y[:context_size])
     population = TabularDataset(X[training_size:], y[training_size:])
-    ood_audit_dataset = None
-    if audit_nonmember_dataset is not None:
-        X_ood_audit, y_ood_audit = _load_ood_arrays(audit_nonmember_dataset, ood_data_dir)
-        if X_ood_audit.shape[1] != dataset.data.shape[1]:
-            raise ValueError(
-                f"OOD audit dataset {audit_nonmember_dataset} has {X_ood_audit.shape[1]} features; "
-                f"expected {dataset.data.shape[1]}."
-            )
-        ood_audit_dataset = TabularDataset(X_ood_audit, y_ood_audit)
-    if population_dataset is not None:
-        X_ood_pop, y_ood_pop = _load_ood_arrays(population_dataset, ood_data_dir)
-        if X_ood_pop.shape[1] != dataset.data.shape[1]:
-            raise ValueError(
-                f"OOD population dataset {population_dataset} has {X_ood_pop.shape[1]} features; "
-                f"expected {dataset.data.shape[1]}."
-            )
-        population = TabularDataset(X_ood_pop, y_ood_pop)
-
 
     num_experiments = configs["run"]["num_experiments"]
     num_reference_models = configs["audit"]["num_ref_models"]
@@ -554,14 +462,9 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
 
     # Auditing dataset — already created during interleaved training; compute for other modes.
     if "auditing_dataset" not in locals():
-        if ood_audit_dataset is not None:
-            auditing_dataset, auditing_membership = _make_ood_auditing_dataset(
-                configs, dataset, ood_audit_dataset, logger, memberships
-            )
-        else:
-            auditing_dataset, auditing_membership = sample_auditing_dataset(
-                configs, dataset, logger, memberships
-            )
+        auditing_dataset, auditing_membership = sample_auditing_dataset(
+            configs, dataset, logger, memberships
+        )
 
     # compute signals — check what already exists to avoid loading models unnecessarily
     baseline_time = time.time()
@@ -706,24 +609,6 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
-        "--audit-nonmember-dataset",
-        type=str,
-        default=None,
-        help="OOD dataset name to use as audit nonmembers. Training/context data remains the ID --dataset.",
-    )
-    parser.add_argument(
-        "--population-dataset",
-        type=str,
-        default=None,
-        help="OOD dataset name to use as RMIA population/reference data. Training/context data remains the ID --dataset.",
-    )
-    parser.add_argument(
-        "--ood-data-dir",
-        type=str,
-        default="data/ood_noise25",
-        help="Directory containing OOD CSV files.",
-    )
-    parser.add_argument(
         "--skip-existing",
         action="store_true",
         help=(
@@ -777,9 +662,6 @@ if __name__ == "__main__":
                         num_ref_override=args.num_ref,
                         seed=seed,
                         skip_existing=args.skip_existing,
-                        audit_nonmember_dataset=args.audit_nonmember_dataset,
-                        population_dataset=args.population_dataset,
-                        ood_data_dir=args.ood_data_dir,
                     )
                 )
                 # Explicitly close the seed-specific logger so its file handler
@@ -812,9 +694,6 @@ if __name__ == "__main__":
                 num_ref_override=args.num_ref,
                 seed=args.seed,
                 skip_existing=args.skip_existing,
-                audit_nonmember_dataset=args.audit_nonmember_dataset,
-                population_dataset=args.population_dataset,
-                ood_data_dir=args.ood_data_dir,
             )
     except Exception as e:
         import traceback

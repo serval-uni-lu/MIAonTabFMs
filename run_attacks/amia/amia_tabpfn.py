@@ -1593,10 +1593,7 @@ def main(dataset_name: str, model_name: str, gpu, batch_size: int | None,
          skip_existing: bool = False,
          max_audit_samples: int | None = None,
          max_row_calls: int | None = None,
-         max_col_calls: int | None = None,
-         audit_nonmember_dataset: str | None = None,
-         population_dataset: str | None = None,
-         ood_data_dir: str = "data/ood_noise25"):
+         max_col_calls: int | None = None):
     """
     Parameters
     ----------
@@ -1618,17 +1615,12 @@ def main(dataset_name: str, model_name: str, gpu, batch_size: int | None,
     sys.path.append(str(Path(__file__).parent.parent.parent / "ml_privacy_meter"))
     from models.utils import load_models
     from util import setup_log
-    from run_attacks.ood_eval import amia_ood_run_name, rmia_ood_run_name
 
     torch.backends.cudnn.benchmark = True
 
     base_log = os.path.join("ml_privacy_meter", "logs", dataset_name, model_name.lower())
     run_root = os.path.join(base_log, f"seed{seed}") if seed is not None else base_log
-    ood_eval = audit_nonmember_dataset is not None or population_dataset is not None
-    if ood_eval:
-        rmia_log = os.path.join(run_root, rmia_ood_run_name(context_pct or 100.0, audit_nonmember_dataset, population_dataset))
-        attn_log = os.path.join(run_root, amia_ood_run_name(context_pct or 100.0, audit_nonmember_dataset, population_dataset))
-    elif context_pct is not None and context_pct < 100.0:
+    if context_pct is not None and context_pct < 100.0:
         rmia_log = os.path.join(run_root, f"rmia_ctx{int(context_pct)}")
         attn_log = os.path.join(run_root, f"amia_ctx{int(context_pct)}")
     else:
@@ -1742,32 +1734,13 @@ def main(dataset_name: str, model_name: str, gpu, batch_size: int | None,
 
         from audit import sample_auditing_dataset
         from dataset.tabular import TabularDataset
-        from run_attacks.ood_eval import (
-            amia_ood_run_name,
-            load_ood_dataset,
-            make_ood_auditing_dataset,
-            rmia_ood_run_name,
-        )
 
         pool_size = memberships.shape[1]
         dataset = TabularDataset(X[:pool_size], y[:pool_size])
         np.random.seed(configs["run"].get("random_seed", 12345))
-        if audit_nonmember_dataset is not None:
-            ood_dataset = load_ood_dataset(
-                audit_nonmember_dataset, ood_data_dir, prepare_tabular_arrays, TabularDataset
-            )
-            if ood_dataset.data.shape[1] != dataset.data.shape[1]:
-                raise ValueError(
-                    f"OOD audit dataset {audit_nonmember_dataset} has {ood_dataset.data.shape[1]} features; "
-                    f"expected {dataset.data.shape[1]}."
-                )
-            auditing_dataset, auditing_membership = make_ood_auditing_dataset(
-                configs, dataset, ood_dataset, logger, memberships, TabularDataset
-            )
-        else:
-            auditing_dataset, auditing_membership = sample_auditing_dataset(
-                configs, dataset, logger, memberships
-            )
+        auditing_dataset, auditing_membership = sample_auditing_dataset(
+            configs, dataset, logger, memberships
+        )
         X_pool, _ = _dataset_arrays(auditing_dataset)
         n_pool = len(X_pool)
         mem = auditing_membership[model_idx].astype(bool)
@@ -1929,12 +1902,6 @@ Examples:
                         ))
     parser.add_argument("--seeds", type=str, default=None,
                         help="Comma-separated seed list, e.g. --seeds 1,2,3,4,5.")
-    parser.add_argument("--audit-nonmember-dataset", type=str, default=None,
-                        help="OOD dataset name to use as AMIA audit nonmembers. Training/context data remains the ID --dataset.")
-    parser.add_argument("--population-dataset", type=str, default=None,
-                        help="OOD population dataset name used to locate the matching RMIA OOD run.")
-    parser.add_argument("--ood-data-dir", type=str, default="data/ood_noise25",
-                        help="Directory containing generated OOD CSV files.")
     parser.add_argument("--skip-existing", action="store_true",
                         help="Skip a seed if cached AMIA signals and attention_summary.csv already exist.")
     parser.add_argument("--max-audit-samples", type=int, default=None,
@@ -2020,9 +1987,6 @@ Examples:
             context_pct=args.context_pct,
             seed=seed,
             skip_existing=args.skip_existing,
-            audit_nonmember_dataset=args.audit_nonmember_dataset,
-            population_dataset=args.population_dataset,
-            ood_data_dir=args.ood_data_dir,
             max_audit_samples=args.max_audit_samples,
             max_row_calls=args.max_row_calls,
             max_col_calls=args.max_col_calls,
