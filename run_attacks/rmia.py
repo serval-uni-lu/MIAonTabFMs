@@ -1,7 +1,6 @@
 import shutil
 import sys
 import os
-import json
 import yaml
 import pandas as pd
 import time
@@ -201,156 +200,6 @@ def _load_or_create_seed_permutation(log_dir: str, n_samples: int, seed: int) ->
     return order
 
 
-def _result_npz_for_report(report_dir: str) -> str:
-    average_path = os.path.join(report_dir, "attack_result_average.npz")
-    if os.path.exists(average_path):
-        return average_path
-    single_path = os.path.join(report_dir, "exp", "attack_result_0.npz")
-    if os.path.exists(single_path):
-        return single_path
-    raise FileNotFoundError(f"No attack result found under {report_dir}")
-
-
-def _attack_auc_for_report(report_dir: str) -> float | None:
-    try:
-        with np.load(_result_npz_for_report(report_dir)) as result:
-            if "auc" not in result.files:
-                return None
-            return float(result["auc"])
-    except FileNotFoundError:
-        return None
-
-
-def _update_defense_accuracy_auc(defended_report_dir: str,
-                                 baseline_report_dir: str,
-                                 logger) -> tuple[float, float | None] | None:
-    """Add/update the defended and undefended RMIA AUC row in defense_accuracy.csv."""
-    defended_auc = _attack_auc_for_report(defended_report_dir)
-    baseline_auc = _attack_auc_for_report(baseline_report_dir)
-    if defended_auc is None:
-        logger.warning(
-            "Cannot update defense_accuracy.csv; missing defended RMIA AUC under %s",
-            defended_report_dir,
-        )
-        return None
-
-    csv_path = Path(defended_report_dir) / "defense_accuracy.csv"
-    if csv_path.exists():
-        df = pd.read_csv(csv_path)
-    else:
-        df = pd.DataFrame(columns=["metric", "no_defense", "defended", "drop"])
-
-    df = df[df["metric"] != "auc"]
-    auc_row = {
-        "metric": "auc",
-        "no_defense": f"{baseline_auc:.6f}" if baseline_auc is not None else "",
-        "defended": f"{defended_auc:.6f}",
-        "drop": (
-            f"{baseline_auc - defended_auc:.6f}"
-            if baseline_auc is not None else ""
-        ),
-    }
-    df = pd.concat([df, pd.DataFrame([auc_row])], ignore_index=True)
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(csv_path, index=False)
-    logger.info(
-        "Saved defense AUC to %s: no_defense=%s defended=%.4f",
-        csv_path,
-        f"{baseline_auc:.4f}" if baseline_auc is not None else "missing",
-        defended_auc,
-    )
-    return defended_auc, baseline_auc
-
-
-def _target_model_test_acc_for_report(report_dir: str, model_id: int = 0) -> float:
-    report_path = Path(report_dir)
-    defense_accuracy_path = report_path / "defense_accuracy.csv"
-    if defense_accuracy_path.exists():
-        df = pd.read_csv(defense_accuracy_path)
-        match = df[df["metric"] == "accuracy"]
-        if not match.empty and "defended" in match.columns:
-            return float(match.iloc[0]["defended"])
-
-    for candidate in (report_path, *report_path.parents):
-        metadata_path = candidate / "models" / "models_metadata.json"
-        if not metadata_path.exists():
-            continue
-
-        with open(metadata_path, "r") as f:
-            metadata = json.load(f)
-        model_metadata = metadata.get(str(model_id))
-        if model_metadata is None:
-            raise KeyError(f"Model id {model_id} not found in {metadata_path}")
-        if "test_acc" not in model_metadata:
-            raise KeyError(f"'test_acc' not found for model id {model_id} in {metadata_path}")
-        return float(model_metadata["test_acc"])
-
-    raise FileNotFoundError(
-        f"No models_metadata.json found for target model accuracy under {report_dir}"
-    )
-
-
-def _append_defense_eval_result(summary_dir: str,
-                                defense: str,
-                                seed: int | None,
-                                defended_report_dir: str,
-                                baseline_report_dir: str,
-                                accuracy: float | None,
-                                elapsed_s: float,
-                                logger) -> None:
-    """Append/update standalone defended RMIA results beside other defenses."""
-    defended_auc = _attack_auc_for_report(defended_report_dir)
-    baseline_auc = _attack_auc_for_report(baseline_report_dir)
-    if defended_auc is None:
-        logger.warning("Cannot update defense summary; missing defended RMIA AUC under %s",
-                       defended_report_dir)
-        return
-
-    Path(summary_dir).mkdir(parents=True, exist_ok=True)
-    csv_path = os.path.join(summary_dir, "defense_eval_results.csv")
-    row = {
-        "seed": seed,
-        "defense": defense,
-        "time_s": float(elapsed_s),
-        "rmia_auc": defended_auc,
-        "baseline_rmia_auc": baseline_auc,
-        "rmia_auc_delta": (
-            defended_auc - baseline_auc if baseline_auc is not None else np.nan
-        ),
-        "amia_row_max_auc": np.nan,
-        "amia_row_ent_auc": np.nan,
-        "amia_row_max_d": np.nan,
-        "accuracy": accuracy if accuracy is not None else np.nan,
-        "report_dir": defended_report_dir,
-    }
-
-    new_row = pd.DataFrame([row])
-    if os.path.exists(csv_path):
-        df = pd.read_csv(csv_path)
-        if "seed" not in df.columns:
-            df.insert(0, "seed", np.nan)
-        df = df[
-            ~(
-                (df.get("defense") == defense)
-                & (df.get("seed").fillna(-1).astype(float) == (seed if seed is not None else -1))
-            )
-        ]
-        df = pd.concat([df, new_row], ignore_index=True, sort=False)
-    else:
-        df = new_row
-    df.to_csv(csv_path, index=False)
-    logger.info(
-        "Saved defense comparison to %s: %s RMIA AUC=%.4f%s",
-        csv_path,
-        defense,
-        defended_auc,
-        (
-            f" (baseline={baseline_auc:.4f}, delta={defended_auc - baseline_auc:+.4f})"
-            if baseline_auc is not None else ""
-        ),
-    )
-
-
 def summarize_seed_results(report_dirs: list, seeds: list, summary_dir: str,
                            online: bool = False, context_pct: float = 100.0) -> None:
     from run_attacks.seed_summary import update_seed_row
@@ -462,7 +311,7 @@ def build_proxy_combined_signals(
     return combined_signals, combined_pop_signals, combined_memberships
 
 
-def main(dataset_name: str = "locations", mode: str = "train", context_pct: float = 100.0, gpu: str = None, model_name: str = None, proxy_model: str = None, online: bool = False, num_ref_override: int = None, defense: str = "none", seed: int = None, skip_existing: bool = False, audit_nonmember_dataset: str = None, population_dataset: str = None, ood_data_dir: str = "data/ood_noise25"):
+def main(dataset_name: str = "locations", mode: str = "train", context_pct: float = 100.0, gpu: str = None, model_name: str = None, proxy_model: str = None, online: bool = False, num_ref_override: int = None, seed: int = None, skip_existing: bool = False, audit_nonmember_dataset: str = None, population_dataset: str = None, ood_data_dir: str = "data/ood_noise25"):
     """
     Main entry point for running ML Privacy Meter experiments.
 
@@ -528,29 +377,16 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
     # Proxy runs get their own report dir so normal RMIA results are not overwritten.
     # Online runs also get their own dir so offline results are not overwritten.
     # Ref-sweep runs get their own dir (report_ref{k}) to avoid overwriting the baseline.
-    if defense != "none" and proxy_model is not None:
-        raise ValueError(
-            "Combining --defense with --proxy-model is not supported. "
-            "HAMP defense is applied to all target-architecture RMIA models, but proxy references are loaded from cached signals."
-        )
     online_attack = configs["audit"].get("online_attack", False)
     report_suffix = "_online" if online_attack else ""
     if num_ref_override is not None:
         report_suffix += f"_ref{num_ref_override}"
     baseline_report_dir = os.path.join(log_dir, f"report{report_suffix}")
-    defense_run_dir = None
-    if defense != "none":
-        seed_part = f"seed{seed}" if seed is not None else None
-        defense_run_dir = os.path.join(base_log_dir, "defense", defense, "rmia")
-        if seed_part is not None:
-            defense_run_dir = os.path.join(defense_run_dir, seed_part)
-        report_dir = os.path.join(defense_run_dir, f"report{report_suffix}")
-    else:
-        report_dir = (
-            os.path.join(base_log_dir, "rmia_proxy", proxy_model.lower(), f"report{report_suffix}")
-            if proxy_model is not None
-            else baseline_report_dir
-        )
+    report_dir = (
+        os.path.join(base_log_dir, "rmia_proxy", proxy_model.lower(), f"report{report_suffix}")
+        if proxy_model is not None
+        else baseline_report_dir
+    )
     directories = {
         "log_dir": log_dir,
         "report_dir": report_dir,
@@ -727,19 +563,6 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
                 configs, dataset, logger, memberships
             )
 
-    # When a defense is active, redirect signal caching to a separate subdir so
-    # defended and undefended signals never collide on disk.
-    if defense != "none":
-        from run_defenses.hamp_inference import make_hamp_wrapper, log_defense_accuracy
-        configs["run"]["log_dir"] = defense_run_dir
-        orig_target = models_list[0]
-        models_list = [make_hamp_wrapper(m, dataset.data, model_name_for_logs) for m in models_list]
-        _, defended_accuracy = log_defense_accuracy(orig_target, models_list[0],
-                                                    population.data, population.targets,
-                                                    directories["report_dir"], logger)
-    else:
-        defended_accuracy = None
-
     # compute signals — check what already exists to avoid loading models unnecessarily
     baseline_time = time.time()
     algo = configs["audit"]["algorithm"].lower()
@@ -757,9 +580,6 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         models_list_pop, _ = load_models(model_log_dir, dataset, 2 * num_model_pairs, configs, logger)
-        if defense != "none":
-            from run_defenses.hamp_inference import make_hamp_wrapper
-            models_list_pop = [make_hamp_wrapper(m, dataset.data, model_name_for_logs) for m in models_list_pop]
         population_signals = get_model_signals(models_list_pop, population, configs, logger, is_population=True)
         del models_list_pop; gc.collect()
     else:
@@ -807,22 +627,6 @@ def main(dataset_name: str = "locations", mode: str = "train", context_pct: floa
         )
 
     logger.info("Total runtime: %0.5f seconds", time.time() - start_time)
-    if defense != "none":
-        _update_defense_accuracy_auc(
-            defended_report_dir=directories["report_dir"],
-            baseline_report_dir=baseline_report_dir,
-            logger=logger,
-        )
-        _append_defense_eval_result(
-            summary_dir=os.path.join(base_log_dir, "defense"),
-            defense=defense,
-            seed=seed,
-            defended_report_dir=directories["report_dir"],
-            baseline_report_dir=baseline_report_dir,
-            accuracy=defended_accuracy,
-            elapsed_s=time.time() - start_time,
-            logger=logger,
-        )
     return directories["report_dir"]
 
 
@@ -901,8 +705,6 @@ if __name__ == "__main__":
             "'12345,23456,34567,45678,56789'. Writes mean/std CSVs under the model directory."
         ),
     )
-    parser.add_argument("--defense", type=str, default="none", choices=["none", "hamp"],
-                        help="Apply a test-time defense before computing attack signals.")
     parser.add_argument(
         "--audit-nonmember-dataset",
         type=str,
@@ -930,9 +732,6 @@ if __name__ == "__main__":
         ),
     )
     args = parser.parse_args()
-
-    if args.defense != "none" and args.seed is None and args.seeds is None:
-        args.seed = 1
 
     # --online reuses existing models/signals — force load mode unless the user
     # explicitly asked for train (which would wipe the signals directory).
@@ -976,7 +775,6 @@ if __name__ == "__main__":
                         proxy_model=args.proxy_model,
                         online=args.online,
                         num_ref_override=args.num_ref,
-                        defense=args.defense,
                         seed=seed,
                         skip_existing=args.skip_existing,
                         audit_nonmember_dataset=args.audit_nonmember_dataset,
@@ -997,8 +795,6 @@ if __name__ == "__main__":
                 args.dataset,
                 _model_name.lower(),
             )
-            if args.defense != "none":
-                summary_dir = os.path.join(summary_dir, "defense", args.defense, "rmia")
             summarize_seed_results(report_dirs, seeds, summary_dir, online=args.online,
                                    context_pct=args.context_pct)
             print(f"[SEED] Wrote seed summaries to {summary_dir}")
@@ -1014,7 +810,6 @@ if __name__ == "__main__":
                 proxy_model=args.proxy_model,
                 online=args.online,
                 num_ref_override=args.num_ref,
-                defense=args.defense,
                 seed=args.seed,
                 skip_existing=args.skip_existing,
                 audit_nonmember_dataset=args.audit_nonmember_dataset,
